@@ -100,6 +100,41 @@ if (Test-Path $performanceFunctionsPath) {
     Write-Warning "PerformanceFunctions.ps1 not found at $performanceFunctionsPath"
 }
 
+# Check for Administrator privileges and warn about functions that require elevation
+$IsAdministrator = (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (-not $IsAdministrator) {
+    # Define functions that typically require Administrator privileges
+    $ElevationRequiredFunctions = @(
+        "*Registry*",
+        "*EventLog*",
+        "*Memory*",
+        "*AdvancedMemory*",
+        "*NetworkCapture*",
+        "*Firewall*",
+        "*System*"
+    )
+
+    $FunctionsNeedingElevation = @()
+    foreach ($pattern in $ElevationRequiredFunctions) {
+        $FunctionsNeedingElevation += Get-Command -Name $pattern -ErrorAction SilentlyContinue | Where-Object { $_.CommandType -eq "Function" }
+    }
+
+    if ($FunctionsNeedingElevation.Count -gt 0) {
+        Write-Host "`n⚠️  ELEVATION REQUIRED" -ForegroundColor Yellow
+        Write-Host "The following functions require Administrator privileges:" -ForegroundColor Yellow
+        $FunctionsNeedingElevation | Sort-Object Name -Unique | ForEach-Object {
+            Write-Host "  • $($_.Name)" -ForegroundColor White
+        }
+        Write-Host "`nTo use these functions, restart PowerShell as Administrator:" -ForegroundColor Cyan
+        Write-Host "  • Right-click PowerShell → 'Run as Administrator'" -ForegroundColor White
+        Write-Host "  • Or use: Start-Process powershell.exe -Verb RunAs" -ForegroundColor White
+        Write-Host "  • Then re-run: . .\ForensicFunctions.ps1" -ForegroundColor White
+    }
+} else {
+    Write-Host "`n✓ Running with Administrator privileges" -ForegroundColor Green
+}
+
 # Display loading summary
 Write-Host "`n=== MODULE LOADING COMPLETE ===" -ForegroundColor Cyan
 Write-Host "Modules loaded: $LoadedModules" -ForegroundColor Green
