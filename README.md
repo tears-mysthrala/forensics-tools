@@ -40,6 +40,7 @@ The forensic functions are organized into the following modules:
 - **AdvancedFileSystemFunctions.ps1**: Advanced file system forensics with carving, timelines, and anomaly detection
 - **AdvancedMalwareAnalysisFunctions.ps1**: Advanced malware analysis with YARA scanning, static analysis, and behavioral monitoring
 - **CloudForensicsFunctions.ps1**: Cloud forensics for Azure resources, logs, storage, and VM artifacts
+- **ReportingFunctions.ps1**: Forensic reporting and visualization with interactive HTML reports and evidence correlation
 - **EvidenceCollectionFunctions.ps1**: Evidence collection and reporting
 - **AnalysisWrapperFunctions.ps1**: Single-command analysis workflows
 
@@ -140,6 +141,13 @@ The forensic functions are organized into the following modules:
 - `Get-AzureStorageAnalysis`: Analyzes Azure Storage accounts, containers, blobs, and access patterns.
 - `Get-AzureVMArtifacts`: Collects forensic artifacts from Azure Virtual Machines (logs, configurations, disks).
 - `Invoke-AzureCloudForensics`: Complete Azure cloud forensics workflow (inventory + logs + storage + VMs).
+
+### Forensic Reporting and Visualization
+
+- `New-ForensicHTMLReport`: Creates an interactive HTML forensic report with charts, timelines, and evidence correlation.
+- `New-ForensicTimelineVisualization`: Generates an interactive timeline visualization of forensic events and activities.
+- `New-EvidenceCorrelationDashboard`: Creates an evidence correlation dashboard showing relationships between different evidence types.
+- `Export-ForensicReport`: Exports comprehensive forensic reports in multiple formats (JSON, CSV, HTML).
 
 ### Complete Analysis Functions
 
@@ -276,152 +284,4 @@ Invoke-MalwareAnalysis -Path C:\Suspicious -OutputPath C:\MalwareAnalysis -Inclu
 # Cloud Forensics
 Get-AzureResourceInventory -SubscriptionId "12345678-1234-1234-1234-123456789012" -OutputPath C:\AzureAnalysis  # Azure resource inventory
 Get-AzureActivityLogs -SubscriptionId "12345678-1234-1234-1234-123456789012" -Days 30 -OutputPath C:\AzureLogs  # Activity logs
-Get-AzureStorageAnalysis -StorageAccountName "mystorage" -ResourceGroup "myrg" -OutputPath C:\StorageAnalysis  # Storage analysis
-Get-AzureVMArtifacts -VMName "myvm" -ResourceGroup "myrg" -OutputPath C:\VMArtifacts  # VM artifacts
-Invoke-AzureCloudForensics -SubscriptionId "12345678-1234-1234-1234-123456789012" -OutputPath C:\AzureForensics
-```
-
-## Requirements
-
-- PowerShell 5.1 or 7+
-- Administrator privileges for some functions
-- Internet access for module installation
-
-## Integrated Tools
-
-The profile automatically attempts to install and import the following forensic modules:
-
-- PowerForensics
-- PSRecon
-- Invoke-LiveResponse
-
-## Dependencies
-
-### Required for Full Functionality
-
-**Memory Analysis Tools** (Optional - PowerShell method works without them):
-
-- **WinPMEM**: `Get-MemoryDump -Method WinPMEM`
-  - Automatically downloaded by `Install-ForensicTools`
-  - Stored in profile `Tools\` directory for USB compatibility
-
-- **DumpIt**: `Get-MemoryDump -Method DumpIt`
-  - Download: [MoonSols DumpIt](https://www.moonsols.com/windows-memory-toolkit/)
-  - Place in profile `Tools\` directory
-
-**Note**: PowerShell method provides valuable memory information without external tools.
-
-**Python Forensics Tools** (for advanced analysis):
-
-- **Python 3.8+**: [python.org](https://python.org)
-- **Volatility 3**: `pip install volatility3`
-- **PEFile**: `pip install pefile`
-- **YARA**: `pip install yara-python`
-
-### Automatic Setup
-
-Run `Get-PythonForensicsTools` to automatically check and install Python dependencies.
-
-## Contributing
-
-When adding new forensic functions:
-
-1. Choose the appropriate module in `Scripts/Modules/` based on function purpose
-2. Add the function with proper help documentation
-3. Test on a non-production system
-4. Update this README if adding new function categories
-
-### Module Guidelines
-
-- **CoreSystemFunctions.ps1**: System information, processes, users, services, scheduled tasks
-- **NetworkFunctions.ps1**: Network analysis, connections, shares, USB devices
-- **FileSystemFunctions.ps1**: File operations, hashes, alternate data streams
-- **RegistryFunctions.ps1**: Registry access and analysis
-- **EventLogFunctions.ps1**: Event log parsing and analysis
-- **MemoryFunctions.ps1**: Memory acquisition and analysis
-- **AdvancedMemoryFunctions.ps1**: Advanced memory forensics with Volatility plugins and artifact extraction
-- **AdvancedNetworkFunctions.ps1**: Advanced network forensics with packet capture and traffic analysis
-- **AdvancedFileSystemFunctions.ps1**: Advanced file system forensics with carving, timelines, and anomaly detection
-- **AdvancedMalwareAnalysisFunctions.ps1**: Advanced malware analysis with YARA scanning, static analysis, and behavioral monitoring
-- **CloudForensicsFunctions.ps1**: Cloud forensics for Azure resources, logs, storage, and VM artifacts
-- **EvidenceCollectionFunctions.ps1**: Evidence gathering and reporting
-- **AnalysisWrapperFunctions.ps1**: High-level analysis workflows
-
-## Disclaimer
-
-This profile is intended for authorized forensic investigations only. Ensure compliance with legal and organizational policies before use.
-
-## Windows Terminal Integration
-
-The repository includes Windows Terminal configuration for dedicated forensics monitoring:
-
-### Setup Instructions
-
-1. **Deploy to Desktop** (for monitoring):
-
-   ```powershell
-   .\Deploy-ForensicsProfile.ps1
-   ```
-
-2. **Update Windows Terminal Settings**:
-   - Copy the contents of `windows_terminal_settings` to your Windows Terminal settings file
-   - Or manually add the "🔍 Forensics IR" profile
-
-3. **Launch Forensics Session**:
-   - Open Windows Terminal
-   - Select the "🔍 Forensics IR" profile
-   - The profile will automatically load with timestamped prompts for full traceability
-
-### Profile Features
-
-- **Distinctive Appearance**: Uses Dracula color scheme with 🔍 icon
-- **Automatic Profile Loading**: Loads forensics profile from desktop
-- **Monitoring Ready**: Position on desktop for constant visibility
-- **Timestamped Prompts**: Every command is logged with date/time
-
-## Testing & Validation
-
-The profile has been tested and validated with the following functions:
-
-### Core Functionality Tests ✅
-
-- **Profile Loading**: Successfully loads all modules and displays system information
-- **Python Tools Setup**: `Get-PythonForensicsTools` automatically installs required libraries
-- **Memory Dump**: `Get-MemoryDump -Method PowerShell` creates memory information JSON files
-- **Evidence Collection**: `Collect-SystemEvidence` gathers 10 evidence files without errors
-- **Live Forensics**: `Invoke-LiveForensics` performs complete analysis workflow
-- **Tool Installation**: `Install-ForensicTools` sets up tools in profile directory
-- **Permission Handling**: Functions gracefully handle access denied errors with timeouts
-- **Wrapper Functions**: All analysis wrapper functions execute successfully
-
-### Test Results
-
-```powershell
-# Live system status check (tested successfully)
-Invoke-LiveSystemStatus
-# Output: Displays system info, processes, network, services
-
-# System analysis (tested successfully)
-Invoke-SystemAnalysis -OutputPath '.\test_analysis'
-# Output: Creates SystemAnalysis directory with 6 XML files
-
-# Network analysis (tested successfully)
-Invoke-NetworkAnalysis -OutputPath '.\test_analysis'
-# Output: Creates NetworkAnalysis directory with connection/share data
-
-# File system analysis (tested successfully)
-Invoke-FileSystemAnalysis -Path "C:\" -OutputPath '.\test_analysis'
-# Output: Creates FileSystemAnalysis directory with file artifacts
-
-# Event log analysis (tested successfully)
-Invoke-EventLogAnalysis -Hours 24 -OutputPath '.\test_analysis'
-# Output: Creates EventLogAnalysis directory with log summaries
-
-# Registry analysis (tested successfully)
-Invoke-RegistryAnalysis -OutputPath '.\test_analysis'
-# Output: Creates RegistryAnalysis directory with registry data
-
-# Complete forensics (tested successfully)
-Invoke-CompleteForensics -OutputPath '.\test_complete' -IncludeMemory $false
-# Output: Runs all analysis phases, creates comprehensive report
-```
+Get-AzureStorageAnalysis -StorageAccountName "mystorage" -ResourceGroup "myrg" -OutputPath C:\StorageAnalysis  #

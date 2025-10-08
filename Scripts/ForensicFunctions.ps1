@@ -43,6 +43,7 @@ $Modules = @(
     "AdvancedFileSystemFunctions.ps1",
     "AdvancedMalwareAnalysisFunctions.ps1",
     "CloudForensicsFunctions.ps1",
+    "ReportingFunctions.ps1",
     "EvidenceCollectionFunctions.ps1",
     "AnalysisWrapperFunctions.ps1"
 )
