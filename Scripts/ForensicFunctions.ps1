@@ -49,7 +49,8 @@ $Modules = @(
     "PerformanceFunctions.ps1",
     "ExternalToolIntegrationsFunctions.ps1",
     "TestingValidationFrameworkFunctions.ps1",
-    "BrowserForensicsFunctions.ps1"
+    "BrowserForensicsFunctions.ps1",
+    "DatabaseForensicsFunctions.ps1"
 )
 
 $LoadedModules = 0
