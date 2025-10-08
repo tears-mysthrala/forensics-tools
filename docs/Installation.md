@@ -60,18 +60,28 @@ $forensicPath = "D:\Forensics"  # Adjust path as needed
 
 ## Required Tools and Dependencies
 
-The profile will automatically attempt to install and configure required tools:
+The profile includes a comprehensive installation function that automatically downloads and installs all required forensic tools:
 
 ### Automatic Installation
 
 ```powershell
-# Install all required forensic tools
+# Install all required forensic tools automatically
 Install-ForensicTools
 ```
 
+This command will install:
+
+- **WinPMEM** - Memory acquisition tool
+- **Python 3.11+** - Required for advanced memory analysis
+- **Volatility3** - Memory forensics framework
+- **YARA** - Pattern matching tool for malware analysis
+- **Azure CLI** - For cloud forensics operations
+- **Wireshark/TShark** - Network packet analysis
+- **Python packages** - pefile, yara-python, construct, and others
+
 ### Manual Installation
 
-If automatic installation fails, you can install tools manually:
+If automatic installation fails or you prefer manual control, you can install tools individually:
 
 #### Python and Volatility3
 
