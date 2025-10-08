@@ -180,4 +180,224 @@ function Get-RegistryKeys {
     Get-ItemProperty -Path $Path | Select-Object * -ExcludeProperty PS*
 }
 
+function Get-RecentFiles {
+    <#
+    .SYNOPSIS
+        Finds files modified within the last X days.
+    .PARAMETER Days
+        Number of days to look back (default: 7).
+    .PARAMETER Path
+        Directory to search (default: C:\).
+    .EXAMPLE
+        Get-RecentFiles -Days 1 -Path C:\Users
+    #>
+    param(
+        [int]$Days = 7,
+        [string]$Path = "C:\"
+    )
+    $cutoffDate = (Get-Date).AddDays(-$Days)
+    Get-ChildItem -Path $Path -Recurse -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.LastWriteTime -gt $cutoffDate } |
+    Select-Object FullName, LastWriteTime, Length |
+    Sort-Object LastWriteTime -Descending
+}
+
+function Get-LargeFiles {
+    <#
+    .SYNOPSIS
+        Finds files larger than specified size.
+    .PARAMETER MinSizeMB
+        Minimum file size in MB (default: 100).
+    .PARAMETER Path
+        Directory to search (default: C:\).
+    .EXAMPLE
+        Get-LargeFiles -MinSizeMB 500 -Path C:\Users
+    #>
+    param(
+        [int]$MinSizeMB = 100,
+        [string]$Path = "C:\"
+    )
+    $minSize = $MinSizeMB * 1MB
+    Get-ChildItem -Path $Path -Recurse -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Length -gt $minSize } |
+    Select-Object FullName, @{Name="SizeMB";Expression={[math]::Round($_.Length/1MB,2)}}, LastWriteTime |
+    Sort-Object SizeMB -Descending
+}
+
+function Get-InstalledSoftware {
+    <#
+    .SYNOPSIS
+        Lists installed software from registry.
+    .EXAMPLE
+        Get-InstalledSoftware
+    #>
+    $paths = @(
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    )
+    
+    foreach ($path in $paths) {
+        Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+        Where-Object { $_.DisplayName } |
+        Select-Object DisplayName, DisplayVersion, Publisher, InstallDate, InstallLocation
+    }
+}
+
+function Get-ScheduledTasks {
+    <#
+    .SYNOPSIS
+        Lists scheduled tasks.
+    .EXAMPLE
+        Get-ScheduledTasks
+    #>
+    Get-ScheduledTask | Where-Object { $_.State -ne "Disabled" } |
+    Select-Object TaskName, TaskPath, State, LastRunTime, NextRunTime, Author
+}
+
+function Get-ServicesStatus {
+    <#
+    .SYNOPSIS
+        Shows running services and their details.
+    .EXAMPLE
+        Get-ServicesStatus
+    #>
+    Get-Service | Where-Object { $_.Status -eq "Running" } |
+    Select-Object Name, DisplayName, Status, StartType, @{Name="ProcessId";Expression={$_.ServiceHandle}}
+}
+
+function Get-StartupPrograms {
+    <#
+    .SYNOPSIS
+        Lists programs that run at startup.
+    .EXAMPLE
+        Get-StartupPrograms
+    #>
+    $startupPaths = @(
+        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run"
+    )
+    
+    foreach ($path in $startupPaths) {
+        if (Test-Path $path) {
+            Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+            Get-Member -MemberType NoteProperty |
+            Where-Object { $_.Name -notlike "PS*" } |
+            ForEach-Object {
+                [PSCustomObject]@{
+                    RegistryPath = $path
+                    Name = $_.Name
+                    Command = (Get-ItemProperty -Path $path -Name $_.Name).$($_.Name)
+                }
+            }
+        }
+    }
+}
+
+function Get-UserAccounts {
+    <#
+    .SYNOPSIS
+        Lists user accounts and their status.
+    .EXAMPLE
+        Get-UserAccounts
+    #>
+    Get-LocalUser | Select-Object Name, Enabled, LastLogon, PasswordLastSet, AccountExpires, Description
+}
+
+function Get-AlternateDataStreams {
+    <#
+    .SYNOPSIS
+        Scans for alternate data streams in files.
+    .PARAMETER Path
+        Directory to scan (default: current directory).
+    .EXAMPLE
+        Get-AlternateDataStreams -Path C:\Suspicious
+    #>
+    param([string]$Path = ".")
+    
+    Get-ChildItem -Path $Path -Recurse -File -ErrorAction SilentlyContinue |
+    ForEach-Object {
+        $streams = Get-Item -Path $_.FullName -Stream * -ErrorAction SilentlyContinue |
+        Where-Object { $_.Stream -ne ':$DATA' }
+        
+        foreach ($stream in $streams) {
+            [PSCustomObject]@{
+                FilePath = $_.FullName
+                StreamName = $stream.Stream
+                Size = $stream.Size
+            }
+        }
+    }
+}
+
+function Get-SystemLogsSummary {
+    <#
+    .SYNOPSIS
+        Provides a summary of system logs.
+    .PARAMETER Hours
+        Hours to look back (default: 24).
+    .EXAMPLE
+        Get-SystemLogsSummary -Hours 48
+    #>
+    param([int]$Hours = 24)
+    
+    $startTime = (Get-Date).AddHours(-$Hours)
+    
+    $logs = @('System', 'Application', 'Security')
+    foreach ($log in $logs) {
+        $entries = Get-EventLog -LogName $log -After $startTime -ErrorAction SilentlyContinue
+        if ($entries) {
+            $summary = $entries | Group-Object -Property EntryType | 
+            Select-Object Name, Count
+            
+            [PSCustomObject]@{
+                LogName = $log
+                TotalEntries = $entries.Count
+                Errors = ($summary | Where-Object Name -eq 'Error').Count
+                Warnings = ($summary | Where-Object Name -eq 'Warning').Count
+                Information = ($summary | Where-Object Name -eq 'Information').Count
+                TimeRange = "$Hours hours"
+            }
+        }
+    }
+}
+
+function Get-NetworkShares {
+    <#
+    .SYNOPSIS
+        Lists network shares.
+    .EXAMPLE
+        Get-NetworkShares
+    #>
+    Get-SmbShare | Select-Object Name, Path, Description, ShareState
+}
+
+function Get-USBDeviceHistory {
+    <#
+    .SYNOPSIS
+        Shows USB device connection history from registry.
+    .EXAMPLE
+        Get-USBDeviceHistory
+    #>
+    $usbKey = "HKLM:\SYSTEM\CurrentControlSet\Enum\USBSTOR"
+    if (Test-Path $usbKey) {
+        Get-ChildItem -Path $usbKey -Recurse -ErrorAction SilentlyContinue |
+        ForEach-Object {
+            $deviceKey = $_.PSPath
+            $friendlyName = (Get-ItemProperty -Path $deviceKey -Name "FriendlyName" -ErrorAction SilentlyContinue).FriendlyName
+            $deviceDesc = (Get-ItemProperty -Path $deviceKey -Name "DeviceDesc" -ErrorAction SilentlyContinue).DeviceDesc
+            
+            if ($friendlyName -or $deviceDesc) {
+                [PSCustomObject]@{
+                    DeviceID = $_.PSChildName
+                    FriendlyName = $friendlyName
+                    DeviceDescription = $deviceDesc
+                    LastConnected = $_.LastWriteTime
+                }
+            }
+        }
+    }
+}
+
 # Add more functions as needed

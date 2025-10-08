@@ -45,10 +45,23 @@ git checkout forensics-profile
 
 - `Get-FileHashes`: Computes hashes for files in a directory.
 - `Analyze-File`: Provides detailed file metadata.
+- `Get-RecentFiles`: Finds files modified within last X days.
+- `Get-LargeFiles`: Finds files larger than specified size.
+- `Get-AlternateDataStreams`: Scans for alternate data streams.
 
 ### Registry Analysis
 
 - `Get-RegistryKeys`: Retrieves registry key values.
+
+### Additional Functions
+
+- `Get-InstalledSoftware`: Lists installed software from registry.
+- `Get-ScheduledTasks`: Lists scheduled tasks.
+- `Get-ServicesStatus`: Shows running services.
+- `Get-StartupPrograms`: Lists startup programs.
+- `Get-UserAccounts`: Lists user accounts and status.
+- `Get-NetworkShares`: Lists network shares.
+- `Get-USBDeviceHistory`: Shows USB device connection history.
 
 ## Usage Examples
 
@@ -67,6 +80,39 @@ Get-FileHashes -Path C:\Suspicious | Export-Csv -Path hashes.csv
 
 # Analyze a specific file
 Analyze-File -Path C:\Windows\System32\cmd.exe
+
+# Find recently modified files
+Get-RecentFiles -Days 1 -Path C:\Users
+
+# Find large files that might be suspicious
+Get-LargeFiles -MinSizeMB 500
+
+# Check installed software
+Get-InstalledSoftware | Where-Object { $_.DisplayName -like "*suspicious*" }
+
+# Analyze scheduled tasks
+Get-ScheduledTasks
+
+# Check running services
+Get-ServicesStatus
+
+# Find startup programs
+Get-StartupPrograms
+
+# List user accounts
+Get-UserAccounts
+
+# Scan for alternate data streams
+Get-AlternateDataStreams -Path C:\
+
+# Get system logs summary
+Get-SystemLogsSummary -Hours 48
+
+# Check network shares
+Get-NetworkShares
+
+# View USB device history
+Get-USBDeviceHistory
 ```
 
 ## Requirements
