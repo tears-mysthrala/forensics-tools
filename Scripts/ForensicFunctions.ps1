@@ -45,7 +45,9 @@ $Modules = @(
     "CloudForensicsFunctions.ps1",
     "ReportingFunctions.ps1",
     "EvidenceCollectionFunctions.ps1",
-    "AnalysisWrapperFunctions.ps1"
+    "AnalysisWrapperFunctions.ps1",
+    "PerformanceFunctions.ps1",
+    "ExternalToolIntegrationsFunctions.ps1"
 )
 
 $LoadedModules = 0
@@ -81,6 +83,15 @@ if (Test-Path $automationFunctionsPath) {
     . $automationFunctionsPath
 } else {
     Write-Warning "AutomationFunctions.ps1 not found at $automationFunctionsPath"
+}
+
+# Load Performance Functions
+$performanceFunctionsPath = Join-Path $PSScriptRoot "Modules\PerformanceFunctions.ps1"
+if (Test-Path $performanceFunctionsPath) {
+    Write-Host "Loading Performance Functions..." -ForegroundColor Cyan
+    . $performanceFunctionsPath
+} else {
+    Write-Warning "PerformanceFunctions.ps1 not found at $performanceFunctionsPath"
 }
 
 # Display loading summary
