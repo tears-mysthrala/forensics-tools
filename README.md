@@ -94,3 +94,31 @@ When adding new forensic functions:
 ## Disclaimer
 
 This profile is intended for authorized forensic investigations only. Ensure compliance with legal and organizational policies before use.
+
+## Windows Terminal Integration
+
+The repository includes Windows Terminal configuration for dedicated forensics monitoring:
+
+### Setup Instructions
+
+1. **Deploy to Desktop** (for monitoring):
+
+   ```powershell
+   .\Deploy-ForensicsProfile.ps1
+   ```
+
+2. **Update Windows Terminal Settings**:
+   - Copy the contents of `windows_terminal_settings` to your Windows Terminal settings file
+   - Or manually add the "🔍 Forensics IR" profile
+
+3. **Launch Forensics Session**:
+   - Open Windows Terminal
+   - Select the "🔍 Forensics IR" profile
+   - The profile will automatically load with timestamped prompts for full traceability
+
+### Profile Features
+
+- **Distinctive Appearance**: Uses Dracula color scheme with 🔍 icon
+- **Automatic Profile Loading**: Loads forensics profile from desktop
+- **Monitoring Ready**: Position on desktop for constant visibility
+- **Timestamped Prompts**: Every command is logged with date/time
