@@ -39,16 +39,3 @@ function Initialize-EncodingConfig {
     [System.Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
     [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 }
-
-# Create module manifest if it doesn't exist
-if (-not (Test-Path "$moduleRoot\CommonUtils.psd1")) {
-    New-ModuleManifest -Path "$moduleRoot\CommonUtils.psd1" `
-        -RootModule 'CommonUtils.psm1' `
-        -ModuleVersion '1.0.0' `
-        -Author 'unaiu' `
-        -Description 'Common utility functions for PowerShell profile' `
-        -FunctionsToExport @('Test-CommandExists', 'Test-IsAdmin', 'Get-FormatedUptime', 'Get-PubIP', 'Initialize-EncodingConfig')
-}
-
-# Export module members
-# Export-ModuleMember -Function Test-CommandExists, Test-IsAdmin, Get-FormatedUptime, Get-PubIP, Initialize-EncodingConfig

@@ -181,20 +181,6 @@ Set-Alias -Name pgrep -Value Get-ProcessByName
 # Export all aliases and functions
 # Export-ModuleMember -Function * -Alias * -Variable EDITOR
 
-# Create module manifest if it doesn't exist
-$manifestPath = Join-Path $PSScriptRoot 'unified_aliases.psd1'
-if (-not (Test-Path $manifestPath)) {
-  New-ModuleManifest -Path $manifestPath `
-    -RootModule 'unified_aliases.ps1' `
-    -ModuleVersion '1.0.0' `
-    -Author 'PowerShell User' `
-    -Description 'Unified PowerShell Aliases' `
-    -PowerShellVersion '5.1' `
-    -FunctionsToExport '*' `
-    -AliasesToExport '*' `
-    -VariablesToExport 'EDITOR'
-}
-
 # ref: https://github.com/ChrisTitusTech/powershell-profile/blob/main/Microsoft.PowerShell_profile.ps1
 
 function Get-AvailableModules {
