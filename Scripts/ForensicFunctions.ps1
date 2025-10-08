@@ -51,7 +51,8 @@ $Modules = @(
     "TestingValidationFrameworkFunctions.ps1",
     "BrowserForensicsFunctions.ps1",
     "DatabaseForensicsFunctions.ps1",
-    "MobileDeviceForensicsFunctions.ps1"
+    "MobileDeviceForensicsFunctions.ps1",
+    "IncidentResponseAutomationFunctions.ps1"
 )
 
 $LoadedModules = 0
