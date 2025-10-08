@@ -1,0 +1,67 @@
+# Microsoft.PowerShell_profile.ps1 - Forensics and Incident Response Profile
+
+# Set essential environment variables
+$ProfileDir = Split-Path -Parent $PROFILE
+
+# Encoding settings
+$env:PYTHONIOENCODING = 'utf-8'
+[System.Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+
+# Module path
+$customModulePath = "$ProfileDir\Modules"
+if ($env:PSModulePath -notlike "*$customModulePath*") {
+    $env:PSModulePath = "$customModulePath;" + $env:PSModulePath
+}
+
+# Performance optimizations
+$env:POWERSHELL_TELEMETRY_OPTOUT = 1
+$env:POWERSHELL_UPDATECHECK = 'Off'
+
+# Load core utilities
+. "$PSScriptRoot\Core\Utils\FileSystemUtils.ps1"
+. "$PSScriptRoot\Core\Utils\SearchUtils.ps1"
+. "$PSScriptRoot\Core\Utils\CommonUtils.ps1"
+
+# Load forensic-specific functions
+. "$PSScriptRoot\Scripts\ForensicFunctions.ps1"
+
+# Install and import forensic modules if available
+$forensicModules = @('PowerForensics', 'PSRecon', 'Invoke-LiveResponse')
+foreach ($module in $forensicModules) {
+    if (-not (Get-Module -Name $module -ListAvailable)) {
+        try {
+            Install-Module -Name $module -Scope CurrentUser -Force -ErrorAction Stop
+        } catch {
+            Write-Warning "Failed to install module $module`: $_"
+        }
+    }
+    try {
+        Import-Module -Name $module -ErrorAction SilentlyContinue
+    } catch {
+        Write-Warning "Failed to import module $module`: $_"
+    }
+}
+
+# Configure PSReadLine with basic features
+$PSReadLineOptions = @{
+    PredictionSource              = 'History'
+    HistorySearchCursorMovesToEnd = $true
+}
+try {
+    Set-PSReadLineOption @PSReadLineOptions
+    Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+}
+catch {
+    Write-Warning "PSReadLine configuration failed: $_"
+}
+
+# Load aliases relevant to forensics
+. "$PSScriptRoot\Core\Utils\unified_aliases.ps1"
+
+Write-Host "Forensics and Incident Response PowerShell Profile Loaded" -ForegroundColor Green
+
+# Display system information for forensics analysis
+Write-Host "`n=== System Information ===" -ForegroundColor Cyan
+Get-SystemInfo | Format-List
