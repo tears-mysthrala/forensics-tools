@@ -47,7 +47,8 @@ $Modules = @(
     "EvidenceCollectionFunctions.ps1",
     "AnalysisWrapperFunctions.ps1",
     "PerformanceFunctions.ps1",
-    "ExternalToolIntegrationsFunctions.ps1"
+    "ExternalToolIntegrationsFunctions.ps1",
+    "TestingValidationFrameworkFunctions.ps1"
 )
 
 $LoadedModules = 0
