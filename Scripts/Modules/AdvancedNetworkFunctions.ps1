@@ -99,7 +99,7 @@ function Start-NetworkCapture {
                     $startTime = Get-Date
                     $connections = @()
 
-                    while ((Get-Date) - $startTime).TotalSeconds -lt $Duration) {
+                    while (((Get-Date) - $startTime).TotalSeconds -lt $Duration) {
                         $currentConnections = Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State, OwningProcess
                         $connections += $currentConnections | ForEach-Object {
                             [PSCustomObject]@{
