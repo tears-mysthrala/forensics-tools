@@ -70,9 +70,9 @@
                 "builtinGlyphs": true,
                 "cellHeight": "1.2",
                 "colorGlyphs": true,
-                "face": "JetBrains Mono",
+                "face": "Cascadia Code",
                 "size": 10,
-                "weight": "extra-black"
+                "weight": "normal"
             },
             "intenseTextStyle": "all",
             "opacity": 80,
@@ -82,7 +82,7 @@
         "list": 
         [
             {
-                "commandline": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+                "commandline": "powershell.exe",
                 "font": 
                 {
                     "size": 12
@@ -98,13 +98,31 @@
                 "name": "Command Prompt"
             },
             {
+                "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "guid": "{12345678-1234-1234-1234-123456789013}",
+                "hidden": false,
+                "name": "Windows PowerShell"
+            },
+            {
+                "commandline": "pwsh.exe -NoExit -Command \". '$env:USERPROFILE\\Documents\\forensics-tools\\Microsoft.PowerShell_profile.ps1'\"",
+                "colorScheme": "Dracula",
+                "font": 
+                {
+                    "size": 11
+                },
+                "guid": "{12345678-1234-1234-1234-123456789014}",
+                "hidden": false,
+                "name": "🔍 Forensics IR (PowerShell 7)",
+                "startingDirectory": "%USERPROFILE%"
+            },
+            {
                 "guid": "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}",
                 "hidden": false,
                 "name": "Git Bash",
                 "source": "Git"
             },
             {
-                "commandline": "C:\\Program Files\\PowerShell\\7\\pwsh.exe -NoExit -Command \". '$env:USERPROFILE\\Desktop\\forensics-tools\\Microsoft.PowerShell_profile.ps1'\"",
+                "commandline": "powershell.exe -NoExit -Command \". '$env:USERPROFILE\\Documents\\forensics-tools\\Microsoft.PowerShell_profile.ps1'\"",
                 "colorScheme": "Dracula",
                 "font": 
                 {
@@ -112,7 +130,6 @@
                 },
                 "guid": "{12345678-1234-1234-1234-123456789012}",
                 "hidden": false,
-                "icon": "ms-appx:///ProfileIcons/{61c54bbd-c2c6-5271-96e7-009a87ff44bf}.png",
                 "name": "🔍 Forensics IR",
                 "startingDirectory": "%USERPROFILE%"
             }
