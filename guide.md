@@ -1,6 +1,6 @@
 # what i want to be done in the project
 
-I have the following repository with a powershell profile https://github.com/tears-mysthrala/PowerShell-profile and i want to make a new profile that is focused on forensics and incident response.
+I have the following repository with a PowerShell profile [PowerShell-profile](https://github.com/tears-mysthrala/PowerShell-profile) and I want to make a new profile that is focused on forensics and incident response.
 
 ## Goals
 

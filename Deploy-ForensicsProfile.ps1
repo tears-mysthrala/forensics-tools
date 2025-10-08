@@ -46,3 +46,20 @@ foreach ($file in $filesToCopy) {
 Write-Host "`nDeployment complete!" -ForegroundColor Green
 Write-Host "Forensics profile is now available at: $DesktopPath" -ForegroundColor Cyan
 Write-Host "Use the '🔍 Forensics IR' profile in Windows Terminal for monitoring." -ForegroundColor Yellow
+
+# Install forensic tools
+Write-Host "`nInstalling forensic tools..." -ForegroundColor Cyan
+try {
+    # Load the profile to access the functions
+    $profilePath = Join-Path $DesktopPath "Microsoft.PowerShell_profile.ps1"
+    if (Test-Path $profilePath) {
+        . $profilePath
+        Install-ForensicTools -ToolsPath $DesktopPath
+    } else {
+        Write-Warning "Could not load profile for tool installation"
+    }
+} catch {
+    Write-Warning "Tool installation failed: $($_.Exception.Message)"
+}
+
+Write-Host "`nSetup complete! Ready for forensics investigations." -ForegroundColor Green
