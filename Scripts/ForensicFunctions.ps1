@@ -52,7 +52,8 @@ $Modules = @(
     "BrowserForensicsFunctions.ps1",
     "DatabaseForensicsFunctions.ps1",
     "MobileDeviceForensicsFunctions.ps1",
-    "IncidentResponseAutomationFunctions.ps1"
+    "IncidentResponseAutomationFunctions.ps1",
+    "EvidenceManagementSystemFunctions.ps1"
 )
 
 $LoadedModules = 0
