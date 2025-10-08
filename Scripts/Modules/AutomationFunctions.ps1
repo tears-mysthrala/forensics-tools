@@ -926,18 +926,3 @@ function Import-AutomationConfiguration {
         return $false
     }
 }
-
-# Export functions
-Export-ModuleMember -Function @(
-    'New-AutomatedEvidenceCollectionWorkflow',
-    'Start-AutomatedEvidenceCollection',
-    'New-ScheduledForensicTask',
-    'Get-ScheduledForensicTasks',
-    'New-SIEMIntegration',
-    'Send-SIEMAlert',
-    'New-ForensicWorkflowOrchestrator',
-    'Start-ForensicWorkflowOrchestration',
-    'Get-AutomationStatus',
-    'Export-AutomationConfiguration',
-    'Import-AutomationConfiguration'
-)

@@ -777,10 +777,10 @@ function New-ForensicTimelineVisualization {
                 content.style.borderLeft = `4px solid \${eventColors[item.EventType] || eventColors.default}`;
 
                 content.innerHTML = `
-                    <div class="timestamp">\${new Date(item.Timestamp).toLocaleString()}</div>
-                    <div class="event-type">\${item.EventType}</div>
-                    <div class="description">\${item.Description || item.Path || 'No description available'}</div>
-                    \${item.Details ? `<div class="details">\${item.Details}</div>` : ''}
+                    <div class="timestamp">`${new Date(item.Timestamp).toLocaleString()}</div>
+                    <div class="event-type">`${item.EventType}</div>
+                    <div class="description">`${item.Description || item.Path || 'No description available'}</div>
+                    `${item.Details ? `<div class="details">`${item.Details}</div>` : ''}
                 `;
 
                 timelineItem.appendChild(content);
