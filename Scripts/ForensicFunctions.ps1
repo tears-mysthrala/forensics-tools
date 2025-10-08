@@ -74,6 +74,15 @@ foreach ($module in $Modules) {
     }
 }
 
+# Load Automation Functions
+$automationFunctionsPath = Join-Path $PSScriptRoot "Modules\AutomationFunctions.ps1"
+if (Test-Path $automationFunctionsPath) {
+    Write-Host "Loading Automation Functions..." -ForegroundColor Cyan
+    . $automationFunctionsPath
+} else {
+    Write-Warning "AutomationFunctions.ps1 not found at $automationFunctionsPath"
+}
+
 # Display loading summary
 Write-Host "`n=== MODULE LOADING COMPLETE ===" -ForegroundColor Cyan
 Write-Host "Modules loaded: $LoadedModules" -ForegroundColor Green

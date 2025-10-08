@@ -159,6 +159,20 @@ The forensic functions are organized into the following modules:
 - `Invoke-RegistryAnalysis`: Registry forensics and persistence mechanisms.
 - `Invoke-CompleteForensics`: Full system forensic analysis (all phases).
 
+### Automation and Orchestration
+
+- `New-AutomatedEvidenceCollectionWorkflow`: Creates automated evidence collection workflows for systematic data gathering.
+- `Start-AutomatedEvidenceCollection`: Executes automated evidence collection workflows with timeout and error handling.
+- `New-ScheduledForensicTask`: Creates Windows scheduled tasks for automated forensic analysis and evidence collection.
+- `Get-ScheduledForensicTasks`: Retrieves information about all configured scheduled forensic tasks.
+- `New-SIEMIntegration`: Configures integration with SIEM systems (Splunk, ELK, QRadar) for automated alerting.
+- `Send-SIEMAlert`: Sends forensic findings and alerts to integrated SIEM systems with threshold checking.
+- `New-ForensicWorkflowOrchestrator`: Creates orchestrators to manage complex forensic workflows with dependencies.
+- `Start-ForensicWorkflowOrchestration`: Executes orchestrated workflows with dependency resolution and parallel execution.
+- `Get-AutomationStatus`: Provides comprehensive status information for all automation components.
+- `Export-AutomationConfiguration`: Exports automation configurations for backup and migration.
+- `Import-AutomationConfiguration`: Imports automation configurations from backup files.
+
 ## Usage Examples
 
 ```powershell
@@ -284,4 +298,26 @@ Invoke-MalwareAnalysis -Path C:\Suspicious -OutputPath C:\MalwareAnalysis -Inclu
 # Cloud Forensics
 Get-AzureResourceInventory -SubscriptionId "12345678-1234-1234-1234-123456789012" -OutputPath C:\AzureAnalysis  # Azure resource inventory
 Get-AzureActivityLogs -SubscriptionId "12345678-1234-1234-1234-123456789012" -Days 30 -OutputPath C:\AzureLogs  # Activity logs
-Get-AzureStorageAnalysis -StorageAccountName "mystorage" -ResourceGroup "myrg" -OutputPath C:\StorageAnalysis  #
+Get-AzureStorageAnalysis -StorageAccountName "mystorage" -ResourceGroup "myrg" -OutputPath C:\StorageAnalysis  # Storage analysis
+Get-AzureVMArtifacts -VMName "myVM" -ResourceGroup "myrg" -OutputPath C:\VMArtifacts  # VM artifacts
+Invoke-AzureCloudForensics -SubscriptionId "12345678-1234-1234-1234-123456789012" -OutputPath C:\CompleteAzureForensics  # Complete Azure forensics workflow
+
+# Forensic Reporting and Visualization
+New-ForensicHTMLReport -InputPath C:\Analysis -OutputPath C:\Report.html  # Create forensic HTML report
+New-ForensicTimelineVisualization -InputPath C:\Analysis\Timeline.json -OutputPath C:\TimelineReport.html  # Timeline visualization
+New-EvidenceCorrelationDashboard -InputPath C:\Analysis\EvidenceCorrelation.json -OutputPath C:\CorrelationDashboard.html  # Evidence correlation dashboard
+Export-ForensicReport -InputPath C:\Analysis -OutputPath C:\ForensicReport.zip  # Export forensic report in multiple formats
+
+# Automation and Orchestration
+New-AutomatedEvidenceCollectionWorkflow -WorkflowName "DailySystemAudit" -Sources @("Memory", "Network", "Filesystem") -Schedule "Daily" -RetentionDays 30  # Create automated evidence collection workflow
+Start-AutomatedEvidenceCollection -WorkflowName "DailySystemAudit"  # Execute automated evidence collection workflow
+New-ScheduledForensicTask -TaskName "DailyForensics" -WorkflowName "DailySystemAudit" -Schedule "Daily" -StartTime "02:00"  # Create scheduled forensic task
+Get-ScheduledForensicTasks  # Get all scheduled forensic tasks
+New-SIEMIntegration -SIEMType "Splunk" -Server "splunk.company.com" -Port 8088 -APIKey "your-api-key"  # Configure SIEM integration
+Send-SIEMAlert -SIEMType "Splunk" -AlertData @{ Severity = "High"; Message = "Malware detected"; Details = $malwareInfo; Score = 9 }  # Send alert to SIEM
+New-ForensicWorkflowOrchestrator -OrchestratorName "IncidentResponse" -Workflows @("MemoryAnalysis", "NetworkAnalysis", "FileSystemAnalysis")  # Create workflow orchestrator
+Start-ForensicWorkflowOrchestration -OrchestratorName "IncidentResponse"  # Execute workflow orchestration
+Get-AutomationStatus  # Get comprehensive automation status
+Export-AutomationConfiguration -OutputPath "C:\Backup\ForensicAutomation.json"  # Export automation configuration
+Import-AutomationConfiguration -InputPath "C:\Backup\ForensicAutomation.json"  # Import automation configuration
+```
