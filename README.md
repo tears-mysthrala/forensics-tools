@@ -102,6 +102,15 @@ The forensic functions are organized into the following modules:
 - `Get-MemoryArtifacts`: Collects memory-resident artifacts (clipboard, environment, history).
 - `Invoke-MemoryForensicAnalysis`: Complete memory forensics workflow (dump + analysis + timeline + artifacts).
 
+### Advanced Network Forensics
+
+- `Start-NetworkCapture`: Captures network traffic using Wireshark/tshark, netsh, or PowerShell.
+- `Get-NetworkTrafficAnalysis`: Analyzes captured traffic for connections, protocols, and suspicious activity.
+- `Get-DNSAnalysis`: Examines DNS cache, queries, and suspicious domain lookups.
+- `Get-FirewallLogAnalysis`: Parses Windows Firewall logs for blocked connections and security events.
+- `Get-NetworkAnomalies`: Detects unusual network activity and suspicious connections.
+- `Invoke-AdvancedNetworkAnalysis`: Complete network forensics workflow (capture + analysis + detection).
+
 ### Complete Analysis Functions
 
 - `Invoke-LiveSystemStatus`: Quick system overview (console output or file).
@@ -210,6 +219,14 @@ Get-MemoryTimeline -MemoryDump C:\Evidence\memory.dmp -OutputPath C:\Analysis
 Get-MemoryStrings -MemoryDump C:\Evidence\memory.dmp -MinLength 8 -OutputPath C:\Analysis
 Get-MemoryArtifacts -OutputPath C:\Evidence
 Invoke-MemoryForensicAnalysis -OutputPath C:\MemoryAnalysis -IncludeProcessDumps $true
+
+# Advanced Network Forensics
+Start-NetworkCapture -Duration 60 -OutputPath C:\Evidence  # Capture network traffic
+Get-NetworkTrafficAnalysis -CaptureFile C:\Evidence\network_capture.pcap -OutputPath C:\Analysis
+Get-DNSAnalysis -OutputPath C:\Evidence  # Analyze DNS cache and queries
+Get-FirewallLogAnalysis -OutputPath C:\Evidence  # Analyze firewall logs
+Get-NetworkAnomalies -OutputPath C:\Evidence  # Detect network anomalies
+Invoke-AdvancedNetworkAnalysis -CaptureDuration 60 -OutputPath C:\NetworkAnalysis
 ```
 
 ## Requirements
