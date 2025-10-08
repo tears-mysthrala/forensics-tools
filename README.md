@@ -35,6 +35,9 @@ The forensic functions are organized into the following modules:
 - **RegistryFunctions.ps1**: Registry forensics and persistence analysis
 - **EventLogFunctions.ps1**: Event log analysis and security monitoring
 - **MemoryFunctions.ps1**: Memory dumping and Volatility analysis
+- **AdvancedMemoryFunctions.ps1**: Advanced memory forensics with Volatility plugins and artifact extraction
+- **AdvancedNetworkFunctions.ps1**: Advanced network forensics with packet capture and traffic analysis
+- **AdvancedFileSystemFunctions.ps1**: Advanced file system forensics with carving, timelines, and anomaly detection
 - **EvidenceCollectionFunctions.ps1**: Evidence collection and reporting
 - **AnalysisWrapperFunctions.ps1**: Single-command analysis workflows
 
@@ -110,6 +113,15 @@ The forensic functions are organized into the following modules:
 - `Get-FirewallLogAnalysis`: Parses Windows Firewall logs for blocked connections and security events.
 - `Get-NetworkAnomalies`: Detects unusual network activity and suspicious connections.
 - `Invoke-AdvancedNetworkAnalysis`: Complete network forensics workflow (capture + analysis + detection).
+
+### Advanced File System Forensics
+
+- `Get-FileSignatures`: Analyzes file signatures and headers for forensic insights (magic bytes, extension mismatches).
+- `Get-FileCarving`: Performs file carving to recover deleted or hidden files based on signatures.
+- `Get-FileSystemTimeline`: Creates comprehensive chronological timelines of file system activity.
+- `Get-DeletedFilesAnalysis`: Analyzes traces of deleted files and recoverable data (Recycle Bin, temp files, prefetch).
+- `Get-FileAnomalyDetection`: Detects file system anomalies and suspicious file activity.
+- `Invoke-AdvancedFileSystemAnalysis`: Complete file system forensics workflow (signatures + timeline + deleted files + anomalies + optional carving).
 
 ### Complete Analysis Functions
 
@@ -227,6 +239,14 @@ Get-DNSAnalysis -OutputPath C:\Evidence  # Analyze DNS cache and queries
 Get-FirewallLogAnalysis -OutputPath C:\Evidence  # Analyze firewall logs
 Get-NetworkAnomalies -OutputPath C:\Evidence  # Detect network anomalies
 Invoke-AdvancedNetworkAnalysis -CaptureDuration 60 -OutputPath C:\NetworkAnalysis
+
+# Advanced File System Forensics
+Get-FileSignatures -Path C:\SuspiciousFiles  # Analyze file signatures
+Get-FileCarving -Path C:\RecoveredFiles  # Perform file carving
+Get-FileSystemTimeline -Path C:\  # Create file system timeline
+Get-DeletedFilesAnalysis -Path C:\  # Analyze deleted files
+Get-FileAnomalyDetection -Path C:\SuspiciousFiles  # Detect file anomalies
+Invoke-AdvancedFileSystemAnalysis -Path C:\Suspicious -OutputPath C:\Analysis
 ```
 
 ## Requirements
@@ -287,6 +307,9 @@ When adding new forensic functions:
 - **RegistryFunctions.ps1**: Registry access and analysis
 - **EventLogFunctions.ps1**: Event log parsing and analysis
 - **MemoryFunctions.ps1**: Memory acquisition and analysis
+- **AdvancedMemoryFunctions.ps1**: Advanced memory forensics with Volatility plugins and artifact extraction
+- **AdvancedNetworkFunctions.ps1**: Advanced network forensics with packet capture and traffic analysis
+- **AdvancedFileSystemFunctions.ps1**: Advanced file system forensics with carving, timelines, and anomaly detection
 - **EvidenceCollectionFunctions.ps1**: Evidence gathering and reporting
 - **AnalysisWrapperFunctions.ps1**: High-level analysis workflows
 
