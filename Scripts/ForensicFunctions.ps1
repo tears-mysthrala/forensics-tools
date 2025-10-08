@@ -38,6 +38,7 @@ $Modules = @(
     "RegistryFunctions.ps1",
     "EventLogFunctions.ps1",
     "MemoryFunctions.ps1",
+    "AdvancedMemoryFunctions.ps1",
     "EvidenceCollectionFunctions.ps1",
     "AnalysisWrapperFunctions.ps1"
 )

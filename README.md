@@ -92,6 +92,16 @@ The forensic functions are organized into the following modules:
 - `Invoke-LiveForensics`: Performs complete live forensics analysis.
 - `Install-ForensicTools`: Downloads and installs required forensic tools.
 
+### Advanced Memory Forensics
+
+- `Get-VolatilityPlugins`: Lists all available Volatility 3 plugins.
+- `Invoke-VolatilityAnalysis`: Runs comprehensive Volatility analysis (processes, network, filesystem, malware, timeline).
+- `Get-ProcessMemoryDump`: Dumps memory of specific processes for analysis.
+- `Get-MemoryTimeline`: Creates chronological timeline from memory artifacts.
+- `Get-MemoryStrings`: Extracts readable strings from memory dumps.
+- `Get-MemoryArtifacts`: Collects memory-resident artifacts (clipboard, environment, history).
+- `Invoke-MemoryForensicAnalysis`: Complete memory forensics workflow (dump + analysis + timeline + artifacts).
+
 ### Complete Analysis Functions
 
 - `Invoke-LiveSystemStatus`: Quick system overview (console output or file).
@@ -191,6 +201,15 @@ Invoke-RegistryAnalysis -OutputPath C:\Analysis
 
 # Complete forensic analysis (all phases)
 Invoke-CompleteForensics -OutputPath C:\Forensics -IncludeMemory $true
+
+# Advanced Memory Forensics
+Get-VolatilityPlugins  # List available Volatility plugins
+Invoke-VolatilityAnalysis -MemoryDump C:\Evidence\memory.dmp -AnalysisType full -OutputPath C:\Analysis
+Get-ProcessMemoryDump -ProcessName "notepad" -OutputPath C:\Evidence
+Get-MemoryTimeline -MemoryDump C:\Evidence\memory.dmp -OutputPath C:\Analysis
+Get-MemoryStrings -MemoryDump C:\Evidence\memory.dmp -MinLength 8 -OutputPath C:\Analysis
+Get-MemoryArtifacts -OutputPath C:\Evidence
+Invoke-MemoryForensicAnalysis -OutputPath C:\MemoryAnalysis -IncludeProcessDumps $true
 ```
 
 ## Requirements
