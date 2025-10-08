@@ -39,6 +39,7 @@ The forensic functions are organized into the following modules:
 - **AdvancedNetworkFunctions.ps1**: Advanced network forensics with packet capture and traffic analysis
 - **AdvancedFileSystemFunctions.ps1**: Advanced file system forensics with carving, timelines, and anomaly detection
 - **AdvancedMalwareAnalysisFunctions.ps1**: Advanced malware analysis with YARA scanning, static analysis, and behavioral monitoring
+- **CloudForensicsFunctions.ps1**: Cloud forensics for Azure resources, logs, storage, and VM artifacts
 - **EvidenceCollectionFunctions.ps1**: Evidence collection and reporting
 - **AnalysisWrapperFunctions.ps1**: Single-command analysis workflows
 
@@ -131,6 +132,14 @@ The forensic functions are organized into the following modules:
 - `Get-FileStaticAnalysis`: Performs static analysis on files for malware indicators (strings, imports, properties).
 - `Get-BehavioralAnalysis`: Monitors process behavior, network connections, and system activity.
 - `Invoke-MalwareAnalysis`: Complete malware analysis workflow (YARA scanning + static analysis + optional behavioral monitoring).
+
+### Cloud Forensics
+
+- `Get-AzureResourceInventory`: Inventories Azure resources, configurations, and access patterns.
+- `Get-AzureActivityLogs`: Collects Azure activity logs, audit events, and administrative actions.
+- `Get-AzureStorageAnalysis`: Analyzes Azure Storage accounts, containers, blobs, and access patterns.
+- `Get-AzureVMArtifacts`: Collects forensic artifacts from Azure Virtual Machines (logs, configurations, disks).
+- `Invoke-AzureCloudForensics`: Complete Azure cloud forensics workflow (inventory + logs + storage + VMs).
 
 ### Complete Analysis Functions
 
@@ -263,6 +272,13 @@ Invoke-YaraScan -Path C:\Suspicious -RulesPath C:\YaraRules -OutputPath C:\ScanR
 Get-FileStaticAnalysis -Path C:\Malware.exe -OutputPath C:\Analysis  # Static analysis
 Get-BehavioralAnalysis -ProcessName "suspicious.exe" -Duration 300 -OutputPath C:\Analysis  # Behavioral monitoring
 Invoke-MalwareAnalysis -Path C:\Suspicious -OutputPath C:\MalwareAnalysis -IncludeBehavioral $true
+
+# Cloud Forensics
+Get-AzureResourceInventory -SubscriptionId "12345678-1234-1234-1234-123456789012" -OutputPath C:\AzureAnalysis  # Azure resource inventory
+Get-AzureActivityLogs -SubscriptionId "12345678-1234-1234-1234-123456789012" -Days 30 -OutputPath C:\AzureLogs  # Activity logs
+Get-AzureStorageAnalysis -StorageAccountName "mystorage" -ResourceGroup "myrg" -OutputPath C:\StorageAnalysis  # Storage analysis
+Get-AzureVMArtifacts -VMName "myvm" -ResourceGroup "myrg" -OutputPath C:\VMArtifacts  # VM artifacts
+Invoke-AzureCloudForensics -SubscriptionId "12345678-1234-1234-1234-123456789012" -OutputPath C:\AzureForensics
 ```
 
 ## Requirements
@@ -327,6 +343,7 @@ When adding new forensic functions:
 - **AdvancedNetworkFunctions.ps1**: Advanced network forensics with packet capture and traffic analysis
 - **AdvancedFileSystemFunctions.ps1**: Advanced file system forensics with carving, timelines, and anomaly detection
 - **AdvancedMalwareAnalysisFunctions.ps1**: Advanced malware analysis with YARA scanning, static analysis, and behavioral monitoring
+- **CloudForensicsFunctions.ps1**: Cloud forensics for Azure resources, logs, storage, and VM artifacts
 - **EvidenceCollectionFunctions.ps1**: Evidence gathering and reporting
 - **AnalysisWrapperFunctions.ps1**: High-level analysis workflows
 
