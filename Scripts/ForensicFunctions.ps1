@@ -41,6 +41,7 @@ $Modules = @(
     "AdvancedMemoryFunctions.ps1",
     "AdvancedNetworkFunctions.ps1",
     "AdvancedFileSystemFunctions.ps1",
+    "AdvancedMalwareAnalysisFunctions.ps1",
     "EvidenceCollectionFunctions.ps1",
     "AnalysisWrapperFunctions.ps1"
 )

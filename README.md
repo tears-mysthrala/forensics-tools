@@ -38,6 +38,7 @@ The forensic functions are organized into the following modules:
 - **AdvancedMemoryFunctions.ps1**: Advanced memory forensics with Volatility plugins and artifact extraction
 - **AdvancedNetworkFunctions.ps1**: Advanced network forensics with packet capture and traffic analysis
 - **AdvancedFileSystemFunctions.ps1**: Advanced file system forensics with carving, timelines, and anomaly detection
+- **AdvancedMalwareAnalysisFunctions.ps1**: Advanced malware analysis with YARA scanning, static analysis, and behavioral monitoring
 - **EvidenceCollectionFunctions.ps1**: Evidence collection and reporting
 - **AnalysisWrapperFunctions.ps1**: Single-command analysis workflows
 
@@ -122,6 +123,14 @@ The forensic functions are organized into the following modules:
 - `Get-DeletedFilesAnalysis`: Analyzes traces of deleted files and recoverable data (Recycle Bin, temp files, prefetch).
 - `Get-FileAnomalyDetection`: Detects file system anomalies and suspicious file activity.
 - `Invoke-AdvancedFileSystemAnalysis`: Complete file system forensics workflow (signatures + timeline + deleted files + anomalies + optional carving).
+
+### Advanced Malware Analysis
+
+- `Get-YaraRules`: Downloads and manages YARA rules for malware detection from public repositories.
+- `Invoke-YaraScan`: Scans files using YARA rules for malware signatures and suspicious patterns.
+- `Get-FileStaticAnalysis`: Performs static analysis on files for malware indicators (strings, imports, properties).
+- `Get-BehavioralAnalysis`: Monitors process behavior, network connections, and system activity.
+- `Invoke-MalwareAnalysis`: Complete malware analysis workflow (YARA scanning + static analysis + optional behavioral monitoring).
 
 ### Complete Analysis Functions
 
@@ -247,6 +256,13 @@ Get-FileSystemTimeline -Path C:\  # Create file system timeline
 Get-DeletedFilesAnalysis -Path C:\  # Analyze deleted files
 Get-FileAnomalyDetection -Path C:\SuspiciousFiles  # Detect file anomalies
 Invoke-AdvancedFileSystemAnalysis -Path C:\Suspicious -OutputPath C:\Analysis
+
+# Advanced Malware Analysis
+Get-YaraRules -OutputPath C:\YaraRules  # Download YARA rules
+Invoke-YaraScan -Path C:\Suspicious -RulesPath C:\YaraRules -OutputPath C:\ScanResults  # YARA scanning
+Get-FileStaticAnalysis -Path C:\Malware.exe -OutputPath C:\Analysis  # Static analysis
+Get-BehavioralAnalysis -ProcessName "suspicious.exe" -Duration 300 -OutputPath C:\Analysis  # Behavioral monitoring
+Invoke-MalwareAnalysis -Path C:\Suspicious -OutputPath C:\MalwareAnalysis -IncludeBehavioral $true
 ```
 
 ## Requirements
@@ -310,6 +326,7 @@ When adding new forensic functions:
 - **AdvancedMemoryFunctions.ps1**: Advanced memory forensics with Volatility plugins and artifact extraction
 - **AdvancedNetworkFunctions.ps1**: Advanced network forensics with packet capture and traffic analysis
 - **AdvancedFileSystemFunctions.ps1**: Advanced file system forensics with carving, timelines, and anomaly detection
+- **AdvancedMalwareAnalysisFunctions.ps1**: Advanced malware analysis with YARA scanning, static analysis, and behavioral monitoring
 - **EvidenceCollectionFunctions.ps1**: Evidence gathering and reporting
 - **AnalysisWrapperFunctions.ps1**: High-level analysis workflows
 
