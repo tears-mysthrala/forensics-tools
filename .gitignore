@@ -94,6 +94,36 @@ devskim-results.sarif
 # Installed tools (if any)
 tools/
 
+# Logs and reports
+logs/
+*.log
+reports/
+*.report
+*.html
+*.xml
+*.json
+# Coverage reports
+coverage/
+*.lcov
+*.lcov.info
+# Test results
+test-results/
+*.trx
+# Debug files
+*.dmp
+*.mdmp
+*.dump
+# Temporary files
+*.tmp
+*.temp
+*.cache
+*.bak
+*.old
+*.swp
+*.swo
+*~
+evidencias/
+
 # Portable PowerShell and installation artifacts
 PortablePowerShell/
 Setup-PortablePowerShell.ps1
