@@ -146,7 +146,7 @@ $KeyFunctions = @(
 )
 
 $AvailableKeyFunctions = $KeyFunctions | Where-Object {
-    Get-Command $_ -ErrorAction SilentlyContinue
+    Get-Command $_ -CommandType Function -ErrorAction SilentlyContinue
 }
 
 if ($AvailableKeyFunctions) {
