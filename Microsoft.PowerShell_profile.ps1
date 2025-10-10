@@ -596,3 +596,21 @@ function Install-Dependencies {
     # Execute the installer
     & $installerPath @arguments
 }
+
+# Attempt to suppress the profile load time message in Windows PowerShell
+if ($PSVersionTable.PSEdition -eq 'Desktop') {
+    try {
+        $currentPos = $host.UI.RawUI.CursorPosition
+        if ($currentPos.Y -gt 0) {
+            # Move cursor to the previous line (where timing message appears)
+            $host.UI.RawUI.CursorPosition = New-Object System.Management.Automation.Host.Coordinates (0, ($currentPos.Y - 1))
+            # Clear the line with spaces
+            $host.UI.Write((' ' * $host.UI.RawUI.BufferSize.Width).Substring(0, [Math]::Min($host.UI.RawUI.BufferSize.Width, 80)))
+            # Return cursor to original position
+            $host.UI.RawUI.CursorPosition = $currentPos
+        }
+    }
+    catch {
+        # Ignore errors if suppression fails
+    }
+}
