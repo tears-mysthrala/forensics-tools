@@ -67,7 +67,6 @@ $Modules = @(
     "AndroidDeviceFunctions.ps1",
     "iOSDeviceFunctions.ps1",
     "MobileDeviceReportingFunctions.ps1",
-    "IncidentResponseAutomationFunctions.ps1",
     "AutomatedReportingFunctions.ps1"
 )
 

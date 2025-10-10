@@ -2,7 +2,7 @@
 # Comprehensive automation and orchestration functions for forensic analysis
 # Includes automated evidence collection, scheduled tasks, and SIEM integration
 
-#Requires -Version 7.0
+#Requires -Version 5.1
 
 <#
 .SYNOPSIS

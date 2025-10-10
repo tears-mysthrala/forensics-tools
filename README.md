@@ -9,8 +9,13 @@ A specialized PowerShell profile designed for digital forensics and incident res
 git clone https://github.com/tears-mysthrala/forensics-tools.git
 cd forensics-tools
 
-# Load the profile
+# Option 1: Manual load (one-time per session)
 . .\Scripts\ForensicFunctions.ps1
+
+# Option 2: Auto-load on shell start (set as PowerShell profile)
+# Copy or link Microsoft.PowerShell_profile.ps1 to $PROFILE
+# For example:
+Copy-Item .\Microsoft.PowerShell_profile.ps1 $PROFILE -Force
 ```
 
 ## Features
