@@ -1,5 +1,5 @@
 # Load aliases by default
-. "$PSScriptRoot/Core/Utils/unified_aliases.ps1"
+. "D:\forense\Core\Utils\unified_aliases.ps1"
 # Initialize profiling
 $script:profileTiming = @{}
 
@@ -118,6 +118,89 @@ if ($MyInvocation.Line -notmatch '--no-supress') {
 }
 
 # Load core configuration
+
+# Prevent re-loading forensics if already loaded
+if ($global:ForensicsProfileLoaded) {
+    Write-Host "Forensics profile already loaded. Skipping re-load." -ForegroundColor Yellow
+} else {
+    # Load forensics toolkit
+    $forensicsPath = "D:\forense"
+    
+    # Load core utilities
+    if (-not (Get-Command New-DirectoryAndEnter -ErrorAction SilentlyContinue)) {
+        . "$forensicsPath\Core\Utils\FileSystemUtils.ps1"
+    }
+    if (-not (Get-Command Find-Files -ErrorAction SilentlyContinue)) {
+        . "$forensicsPath\Core\Utils\SearchUtils.ps1"
+    }
+    if (-not (Get-Command Test-CommandExists -ErrorAction SilentlyContinue)) {
+        . "$forensicsPath\Core\Utils\CommonUtils.ps1"
+    }
+
+    # Load forensic-specific functions
+    if (-not (Get-Command Get-SystemInfo -ErrorAction SilentlyContinue)) {
+        . "$forensicsPath\Scripts\ForensicFunctions.ps1"
+    }
+
+    # Import forensic modules if available
+    $forensicModules = @('PowerForensics', 'PSRecon', 'Invoke-LiveResponse')
+    foreach ($module in $forensicModules) {
+        try {
+            Import-Module -Name $module -ErrorAction SilentlyContinue
+        } catch {
+            # Silently ignore import failures
+        }
+    }
+
+    # Load aliases relevant to forensics
+    if (-not (Get-Alias ll -ErrorAction SilentlyContinue)) {
+        . "$forensicsPath\Core\Utils\unified_aliases.ps1"
+    }
+
+    Write-Host "Forensics and Incident Response PowerShell Profile Loaded" -ForegroundColor Green
+
+    # Display system information for forensics analysis
+    Write-Host "`n=== System Information ===" -ForegroundColor Cyan
+    if (Get-Command Get-SystemInfo -ErrorAction SilentlyContinue) {
+        Get-SystemInfo | Format-List
+    }
+
+    # Mark as loaded
+    $global:ForensicsProfileLoaded = $true
+}
+
+# Custom prompt for forensics traceability
+function prompt {
+    # Get current timestamp
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    
+    # Get user and computer info
+    $user = $env:USERNAME
+    $computer = $env:COMPUTERNAME
+    
+    # Check if running as administrator
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    $adminIndicator = if ($isAdmin) { "[ADMIN]" } else { "" }
+    
+    # Get current directory (shorten if too long)
+    $currentDir = $PWD.Path
+    if ($currentDir.Length -gt 40) {
+        $currentDir = "..." + $currentDir.Substring($currentDir.Length - 37)
+    }
+    
+    # Show last exit code if non-zero
+    $exitCode = if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) { " [Exit:$LASTEXITCODE]" } else { "" }
+    
+    # Build the prompt
+    $promptString = "[$timestamp] $user@$computer$adminIndicator $currentDir$exitCode`nPS> "
+    
+    # Set window title for additional traceability
+    $Host.UI.RawUI.WindowTitle = "PowerShell - $user@$computer - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+    
+    # Return the prompt
+    $promptString
+}
+
 $global:WarningPreference = $global:VerbosePreference = $global:InformationPreference = 'SilentlyContinue'
 
 Measure-Block 'Core Setup' {
