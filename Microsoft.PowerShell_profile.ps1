@@ -145,10 +145,10 @@ else {
         . "$forensicsPath\Core\Utils\unified_aliases.ps1"
     }
 
-    Write-Verbose "Forensics and Incident Response PowerShell Profile Loaded"
+    Write-Host "Forensics and Incident Response PowerShell Profile Loaded"
 
     # Display system information for forensics analysis
-    Write-Verbose "`n=== System Information ==="
+    Write-Host "`n=== System Information ==="
     if (Get-Command Get-SystemInfo -ErrorAction SilentlyContinue) {
         Get-SystemInfo | Format-List
     }
