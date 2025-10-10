@@ -164,7 +164,7 @@ function Invoke-VolatilityAnalysis {
                 OutputFile = $outputFile
                 Success = $true
             }
-            Write-Host "✓ Completed $($plugin.Name)" -ForegroundColor Green
+            Write-Host "[OK] Completed $($plugin.Name)" -ForegroundColor Green
         } catch {
             Write-Warning "Failed to run $($plugin.Name): $($_.Exception.Message)"
             $results.Results[$plugin.Name] = @{
@@ -457,7 +457,7 @@ function Get-MemoryArtifacts {
         } else {
             $artifacts.Artifacts.Clipboard = "No text content"
         }
-        Write-Host "✓ Clipboard collected" -ForegroundColor Green
+        Write-Host "[OK] Clipboard collected" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to collect clipboard: $($_.Exception.Message)"
         $artifacts.Artifacts.Clipboard = "Error: $($_.Exception.Message)"
@@ -469,7 +469,7 @@ function Get-MemoryArtifacts {
         $envVars = Get-ChildItem Env: | Select-Object Name, Value
         $envVars | Export-Csv (Join-Path $artifactsDir "environment_variables.csv") -NoTypeInformation
         $artifacts.Artifacts.EnvironmentVariables = "Collected"
-        Write-Host "✓ Environment variables collected" -ForegroundColor Green
+        Write-Host "[OK] Environment variables collected" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to collect environment variables: $($_.Exception.Message)"
         $artifacts.Artifacts.EnvironmentVariables = "Error: $($_.Exception.Message)"
@@ -481,7 +481,7 @@ function Get-MemoryArtifacts {
         $history = Get-History -Count 50 | Select-Object CommandLine, StartExecutionTime, EndExecutionTime
         $history | Export-Csv (Join-Path $artifactsDir "command_history.csv") -NoTypeInformation
         $artifacts.Artifacts.CommandHistory = "Collected"
-        Write-Host "✓ Command history collected" -ForegroundColor Green
+        Write-Host "[OK] Command history collected" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to collect command history: $($_.Exception.Message)"
         $artifacts.Artifacts.CommandHistory = "Error: $($_.Exception.Message)"
@@ -537,7 +537,7 @@ function Invoke-MemoryForensicAnalysis {
         if ($memoryDump) {
             $workflow.Results.MemoryDump = $memoryDump
             $workflow.Steps += "Memory Dump: Success - $memoryDump"
-            Write-Host "✓ Memory dump acquired" -ForegroundColor Green
+            Write-Host "[OK] Memory dump acquired" -ForegroundColor Green
         } else {
             $workflow.Steps += "Memory Dump: Failed - No dump tool available"
             Write-Warning "Memory dump failed"
@@ -554,7 +554,7 @@ function Invoke-MemoryForensicAnalysis {
             $volResults = Invoke-VolatilityAnalysis -MemoryDump $memoryDump -AnalysisType 'processes' -OutputPath $analysisDir
             $workflow.Results.VolatilityAnalysis = $volResults
             $workflow.Steps += "Volatility Analysis: Success"
-            Write-Host "✓ Volatility analysis completed" -ForegroundColor Green
+            Write-Host "[OK] Volatility analysis completed" -ForegroundColor Green
         } catch {
             $workflow.Steps += "Volatility Analysis: Error - $($_.Exception.Message)"
             Write-Warning "Volatility analysis error: $($_.Exception.Message)"
@@ -569,7 +569,7 @@ function Invoke-MemoryForensicAnalysis {
             if ($timeline) {
                 $workflow.Results.MemoryTimeline = $timeline
                 $workflow.Steps += "Memory Timeline: Success - $timeline"
-                Write-Host "✓ Memory timeline created" -ForegroundColor Green
+                Write-Host "[OK] Memory timeline created" -ForegroundColor Green
             } else {
                 $workflow.Steps += "Memory Timeline: Failed"
                 Write-Warning "Memory timeline creation failed"
@@ -586,7 +586,7 @@ function Invoke-MemoryForensicAnalysis {
         $artifacts = Get-MemoryArtifacts -OutputPath $analysisDir
         $workflow.Results.MemoryArtifacts = $artifacts
         $workflow.Steps += "Memory Artifacts: Success - $artifacts"
-        Write-Host "✓ Memory artifacts collected" -ForegroundColor Green
+        Write-Host "[OK] Memory artifacts collected" -ForegroundColor Green
     } catch {
         $workflow.Steps += "Memory Artifacts: Error - $($_.Exception.Message)"
         Write-Warning "Memory artifacts error: $($_.Exception.Message)"
@@ -611,7 +611,7 @@ function Invoke-MemoryForensicAnalysis {
 
             $workflow.Results.ProcessDumps = $processDumps
             $workflow.Steps += "Process Dumps: Success - $($processDumps.Count) dumps created"
-            Write-Host "✓ Process memory dumps completed" -ForegroundColor Green
+            Write-Host "[OK] Process memory dumps completed" -ForegroundColor Green
         } catch {
             $workflow.Steps += "Process Dumps: Error - $($_.Exception.Message)"
             Write-Warning "Process dumps error: $($_.Exception.Message)"

@@ -4,12 +4,32 @@ This guide covers the installation and setup of the PowerShell Forensics and Inc
 
 ## Prerequisites
 
-- **PowerShell 7.0+** (Windows PowerShell 5.1 has limited functionality)
 - **Windows 10/11** or **Windows Server 2016+**
 - **Administrator privileges** for most forensic operations
 - **Internet access** for downloading tools and dependencies
 
+### PowerShell Compatibility
+
+The toolkit now supports multiple PowerShell versions:
+
+- **PowerShell 7.0+**: Full functionality with modern features
+- **PowerShell 5.1**: Legacy compatibility mode with portable PowerShell Core
+- **CMD/Command Prompt**: Basic launcher support via batch files
+
 ## Quick Installation
+
+### Universal Installer (Recommended)
+
+```powershell
+# Run the universal installer - it automatically detects your PowerShell version
+.\Install-ForensicsToolkit.ps1
+```
+
+This installer will:
+- Detect your PowerShell version
+- Set up portable PowerShell Core if needed (for PS 5.1 systems)
+- Install required forensic tools
+- Create appropriate launchers
 
 ### Option 1: Direct Download
 
@@ -19,8 +39,8 @@ Invoke-WebRequest -Uri "https://github.com/tears-mysthrala/forensics-tools/archi
 Expand-Archive -Path "forensics-tools.zip" -DestinationPath "."
 cd forensics-tools-main
 
-# Load the profile
-. .\Scripts\ForensicFunctions.ps1
+# Run installer
+.\Install-ForensicsToolkit.ps1
 ```
 
 ### Option 2: Git Clone
@@ -30,24 +50,55 @@ cd forensics-tools-main
 git clone https://github.com/tears-mysthrala/forensics-tools.git
 cd forensics-tools
 
-# Load the profile
-. .\Scripts\ForensicFunctions.ps1
+# Run installer
+.\Install-ForensicsToolkit.ps1
+```
+
+## Installation Modes
+
+### Automatic Mode (Default)
+
+The installer automatically detects your environment:
+
+- **PowerShell 7.0+**: Uses native installation with full features
+- **PowerShell 5.1**: Sets up portable PowerShell Core for compatibility
+- **Force Portable**: Use `-PortableMode` to force portable installation
+
+### Portable Mode
+
+For USB drives, shared drives, or systems without PowerShell 7.0+:
+
+```powershell
+# Force portable mode installation
+.\Install-ForensicsToolkit.ps1 -PortableMode
+```
+
+### Desktop Installation
+
+Install to a specific location (like desktop):
+
+```powershell
+# Install to desktop
+.\Install-ForensicsToolkit.ps1 -InstallPath "$env:USERPROFILE\Desktop\forensics-tools"
 ```
 
 ## Profile Integration
 
-### Option 1: Load on Demand
+### PowerShell 7.0+ Systems
 
 ```powershell
 # Load the forensic functions when needed
 . .\Scripts\ForensicFunctions.ps1
 ```
 
-### Option 2: Add to PowerShell Profile
+### PowerShell 5.1 / Portable Mode
 
 ```powershell
-# Add to your PowerShell profile ($PROFILE)
-Add-Content -Path $PROFILE -Value ". `"$PSScriptRoot\Scripts\ForensicFunctions.ps1`""
+# Launch using the portable launcher
+.\Launch-ForensicsToolkit.ps1
+
+# Or from CMD/Command Prompt
+.\Launch-ForensicsToolkit.cmd
 ```
 
 ### Option 3: USB-Compatible Setup
@@ -55,7 +106,7 @@ Add-Content -Path $PROFILE -Value ". `"$PSScriptRoot\Scripts\ForensicFunctions.p
 ```powershell
 # For USB drives or portable installations
 $forensicPath = "D:\Forensics"  # Adjust path as needed
-. "$forensicPath\Scripts\ForensicFunctions.ps1"
+. "$forensicPath\Launch-ForensicsToolkit.ps1"
 ```
 
 ## Required Tools and Dependencies

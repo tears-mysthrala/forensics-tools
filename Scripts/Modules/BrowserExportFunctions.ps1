@@ -66,11 +66,40 @@ function Export-BrowserForensicsReport {
     try {
         Write-Host "Generating browser forensics report..." -ForegroundColor Cyan
 
+        # Calculate summary values
+        if ($History) {
+            $historyCount = $History.Count
+        } else {
+            $historyCount = 0
+        }
+        if ($Cookies) {
+            $cookiesCount = $Cookies.Count
+        } else {
+            $cookiesCount = 0
+        }
+        if ($Cache) {
+            $cacheCount = $Cache.CacheItems.Count
+        } else {
+            $cacheCount = 0
+        }
+        if ($Bookmarks) {
+            $bookmarksCount = $Bookmarks.Count
+        } else {
+            $bookmarksCount = 0
+        }
+        if ($Timeline) {
+            $timelineCount = $Timeline.TotalActivities
+        } else {
+            $timelineCount = 0
+        }
+
         $reportHtml = @"
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Browser Forensics Report - $Browser</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; }
@@ -94,7 +123,7 @@ function Export-BrowserForensicsReport {
 </head>
 <body>
     <div class="header">
-        <h1>🔍 Browser Forensics Report</h1>
+        <h1>Browser Forensics Report</h1>
         <h2>$Browser Analysis</h2>
         <p><strong>Profile:</strong> $ProfilePath</p>
         <p><strong>Report Generated:</strong> $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
@@ -103,23 +132,23 @@ function Export-BrowserForensicsReport {
     <div class="summary">
         <div class="metric">
             <h3>History Items</h3>
-            <div class="value">$($History ? $History.Count : 0)</div>
+            <div class="value">$historyCount</div>
         </div>
         <div class="metric">
             <h3>Cookies Found</h3>
-            <div class="value">$($Cookies ? $Cookies.Count : 0)</div>
+            <div class="value">$cookiesCount</div>
         </div>
         <div class="metric">
             <h3>Cache Items</h3>
-            <div class="value">$($Cache ? $Cache.CacheItems.Count : 0)</div>
+            <div class="value">$cacheCount</div>
         </div>
         <div class="metric">
             <h3>Bookmarks</h3>
-            <div class="value">$($Bookmarks ? $Bookmarks.Count : 0)</div>
+            <div class="value">$bookmarksCount</div>
         </div>
         <div class="metric">
             <h3>Timeline Events</h3>
-            <div class="value">$($Timeline ? $Timeline.TotalActivities : 0)</div>
+            <div class="value">$timelineCount</div>
         </div>
     </div>
 "@
@@ -175,13 +204,25 @@ function Export-BrowserForensicsReport {
                 </tr>
 "@
             foreach ($cookie in ($Cookies | Select-Object -First 50)) {
+                # Calculate cookie values
+                if ($cookie.Expires) {
+                    $expiresValue = $cookie.Expires.ToString('yyyy-MM-dd HH:mm:ss')
+                } else {
+                    $expiresValue = 'Session'
+                }
+                if ($cookie.Secure) {
+                    $secureValue = 'Yes'
+                } else {
+                    $secureValue = 'No'
+                }
+
                 $reportHtml += @"
                 <tr>
                     <td>$($cookie.Domain)</td>
                     <td>$($cookie.Name)</td>
                     <td>$($cookie.Value)</td>
-                    <td>$($cookie.Expires ? $cookie.Expires.ToString('yyyy-MM-dd HH:mm:ss') : 'Session')</td>
-                    <td>$($cookie.Secure ? 'Yes' : 'No')</td>
+                    <td>$expiresValue</td>
+                    <td>$secureValue</td>
                     <td>$($cookie.LastAccess.ToString('yyyy-MM-dd HH:mm:ss'))</td>
                 </tr>
 "@

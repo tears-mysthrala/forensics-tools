@@ -128,7 +128,7 @@ function Get-FileSignatures {
             Write-Host "⚠ Found $($mismatches.Count) files with extension mismatches" -ForegroundColor Red
         } else {
             $signatureAnalysis.Signatures.ExtensionMismatches = 0
-            Write-Host "✓ No extension mismatches found" -ForegroundColor Green
+            Write-Host "[OK] No extension mismatches found" -ForegroundColor Green
         }
 
         # Analyze by type
@@ -138,7 +138,7 @@ function Get-FileSignatures {
         $signatureAnalysis.Signatures.TotalFiles = $results.Count
         $signatureAnalysis.Signatures.FileTypes = $typeSummary
 
-        Write-Host "✓ Analyzed $($results.Count) files" -ForegroundColor Green
+        Write-Host "[OK] Analyzed $($results.Count) files" -ForegroundColor Green
 
     } catch {
         Write-Warning "Failed to analyze file signatures: $($_.Exception.Message)"
@@ -252,7 +252,7 @@ function Get-FileCarving {
 
                     $results | Export-Csv (Join-Path $typeDir "carved_files.csv") -NoTypeInformation
                     $carvingResults.Results[$type] = "Found $($results.Count) files"
-                    Write-Host "✓ Carved $($results.Count) $($sig.Description) files" -ForegroundColor Green
+                    Write-Host "[OK] Carved $($results.Count) $($sig.Description) files" -ForegroundColor Green
                 } else {
                     $carvingResults.Results[$type] = "No files found"
                 }
@@ -381,7 +381,7 @@ function Get-FileSystemTimeline {
         $timelineData.TotalEvents = $timeline.Count
         $timelineData.EventSummary = $eventSummary
 
-        Write-Host "✓ Created timeline with $($timeline.Count) events" -ForegroundColor Green
+        Write-Host "[OK] Created timeline with $($timeline.Count) events" -ForegroundColor Green
         Write-Host "  Date range: $cutoffDate to $(Get-Date)" -ForegroundColor Cyan
 
     } catch {
@@ -445,10 +445,10 @@ function Get-DeletedFilesAnalysis {
             if ($recycleItems) {
                 $recycleItems | Export-Csv (Join-Path $analysisDir "recycle_bin_contents.csv") -NoTypeInformation
                 $deletedAnalysis.Analysis.RecycleBinItems = $recycleItems.Count
-                Write-Host "✓ Found $($recycleItems.Count) items in Recycle Bin" -ForegroundColor Green
+                Write-Host "[OK] Found $($recycleItems.Count) items in Recycle Bin" -ForegroundColor Green
             } else {
                 $deletedAnalysis.Analysis.RecycleBinItems = 0
-                Write-Host "✓ Recycle Bin is empty" -ForegroundColor Green
+                Write-Host "[OK] Recycle Bin is empty" -ForegroundColor Green
             }
         } else {
             $deletedAnalysis.Analysis.RecycleBinItems = "Recycle Bin not accessible"
@@ -468,10 +468,10 @@ function Get-DeletedFilesAnalysis {
         if ($shadowCopies) {
             $shadowCopies | Out-File (Join-Path $analysisDir "shadow_copies.txt")
             $deletedAnalysis.Analysis.ShadowCopies = $shadowCopies.Count
-            Write-Host "✓ Found $($shadowCopies.Count) shadow copies" -ForegroundColor Green
+            Write-Host "[OK] Found $($shadowCopies.Count) shadow copies" -ForegroundColor Green
         } else {
             $deletedAnalysis.Analysis.ShadowCopies = 0
-            Write-Host "✓ No shadow copies found" -ForegroundColor Green
+            Write-Host "[OK] No shadow copies found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to check shadow copies: $($_.Exception.Message)"
@@ -500,10 +500,10 @@ function Get-DeletedFilesAnalysis {
         if ($tempFiles) {
             $tempFiles | Export-Csv (Join-Path $analysisDir "temporary_files.csv") -NoTypeInformation
             $deletedAnalysis.Analysis.TemporaryFiles = $tempFiles.Count
-            Write-Host "✓ Found $($tempFiles.Count) temporary files" -ForegroundColor Green
+            Write-Host "[OK] Found $($tempFiles.Count) temporary files" -ForegroundColor Green
         } else {
             $deletedAnalysis.Analysis.TemporaryFiles = 0
-            Write-Host "✓ No temporary files found" -ForegroundColor Green
+            Write-Host "[OK] No temporary files found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to analyze temporary files: $($_.Exception.Message)"
@@ -522,10 +522,10 @@ function Get-DeletedFilesAnalysis {
             if ($prefetchFiles) {
                 $prefetchFiles | Export-Csv (Join-Path $analysisDir "prefetch_files.csv") -NoTypeInformation
                 $deletedAnalysis.Analysis.PrefetchFiles = $prefetchFiles.Count
-                Write-Host "✓ Found $($prefetchFiles.Count) prefetch files" -ForegroundColor Green
+                Write-Host "[OK] Found $($prefetchFiles.Count) prefetch files" -ForegroundColor Green
             } else {
                 $deletedAnalysis.Analysis.PrefetchFiles = 0
-                Write-Host "✓ No prefetch files found" -ForegroundColor Green
+                Write-Host "[OK] No prefetch files found" -ForegroundColor Green
             }
         } else {
             $deletedAnalysis.Analysis.PrefetchFiles = "Prefetch directory not accessible"
@@ -609,7 +609,7 @@ function Get-FileAnomalyDetection {
             Write-Host "⚠ Found $($suspiciousFiles.Count) recently modified system files" -ForegroundColor Red
         } else {
             $anomalies.Anomalies.SuspiciousLocations = 0
-            Write-Host "✓ No suspicious file locations found" -ForegroundColor Green
+            Write-Host "[OK] No suspicious file locations found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to check suspicious locations: $($_.Exception.Message)"
@@ -627,10 +627,10 @@ function Get-FileAnomalyDetection {
         if ($hiddenFiles) {
             $hiddenFiles | Export-Csv (Join-Path $analysisDir "hidden_files.csv") -NoTypeInformation
             $anomalies.Anomalies.HiddenFiles = $hiddenFiles.Count
-            Write-Host "✓ Found $($hiddenFiles.Count) hidden files" -ForegroundColor Green
+            Write-Host "[OK] Found $($hiddenFiles.Count) hidden files" -ForegroundColor Green
         } else {
             $anomalies.Anomalies.HiddenFiles = 0
-            Write-Host "✓ No hidden files found" -ForegroundColor Green
+            Write-Host "[OK] No hidden files found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to analyze hidden files: $($_.Exception.Message)"
@@ -654,7 +654,7 @@ function Get-FileAnomalyDetection {
             Write-Host "⚠ Found $($unusualLargeFiles.Count) large files in unusual locations" -ForegroundColor Yellow
         } else {
             $anomalies.Anomalies.UnusualLargeFiles = 0
-            Write-Host "✓ No unusual large files found" -ForegroundColor Green
+            Write-Host "[OK] No unusual large files found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to check unusual large files: $($_.Exception.Message)"
@@ -677,7 +677,7 @@ function Get-FileAnomalyDetection {
             Write-Host "⚠ Found $($recentExecutables.Count) recently created executables" -ForegroundColor Red
         } else {
             $anomalies.Anomalies.RecentExecutables = 0
-            Write-Host "✓ No recently created executables found" -ForegroundColor Green
+            Write-Host "[OK] No recently created executables found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to check recent executables: $($_.Exception.Message)"
@@ -739,7 +739,7 @@ function Invoke-AdvancedFileSystemAnalysis {
         $signatureResults = Get-FileSignatures -Path $Path -OutputPath $analysisDir
         $workflow.Results.FileSignatures = $signatureResults
         $workflow.Steps += "File Signatures: Success - $signatureResults"
-        Write-Host "✓ File signature analysis completed" -ForegroundColor Green
+        Write-Host "[OK] File signature analysis completed" -ForegroundColor Green
     } catch {
         $workflow.Steps += "File Signatures: Error - $($_.Exception.Message)"
         Write-Warning "File signature analysis error: $($_.Exception.Message)"
@@ -751,7 +751,7 @@ function Invoke-AdvancedFileSystemAnalysis {
         $timelineResults = Get-FileSystemTimeline -Path $Path -OutputPath $analysisDir -Days 30
         $workflow.Results.FileSystemTimeline = $timelineResults
         $workflow.Steps += "File System Timeline: Success - $timelineResults"
-        Write-Host "✓ File system timeline created" -ForegroundColor Green
+        Write-Host "[OK] File system timeline created" -ForegroundColor Green
     } catch {
         $workflow.Steps += "File System Timeline: Error - $($_.Exception.Message)"
         Write-Warning "File system timeline error: $($_.Exception.Message)"
@@ -764,7 +764,7 @@ function Invoke-AdvancedFileSystemAnalysis {
         $deletedResults = Get-DeletedFilesAnalysis -DriveLetter $driveLetter -OutputPath $analysisDir
         $workflow.Results.DeletedFilesAnalysis = $deletedResults
         $workflow.Steps += "Deleted Files Analysis: Success - $deletedResults"
-        Write-Host "✓ Deleted files analysis completed" -ForegroundColor Green
+        Write-Host "[OK] Deleted files analysis completed" -ForegroundColor Green
     } catch {
         $workflow.Steps += "Deleted Files Analysis: Error - $($_.Exception.Message)"
         Write-Warning "Deleted files analysis error: $($_.Exception.Message)"
@@ -776,7 +776,7 @@ function Invoke-AdvancedFileSystemAnalysis {
         $anomalyResults = Get-FileAnomalyDetection -Path $Path -OutputPath $analysisDir
         $workflow.Results.FileAnomalies = $anomalyResults
         $workflow.Steps += "File Anomaly Detection: Success - $anomalyResults"
-        Write-Host "✓ File anomaly detection completed" -ForegroundColor Green
+        Write-Host "[OK] File anomaly detection completed" -ForegroundColor Green
     } catch {
         $workflow.Steps += "File Anomaly Detection: Error - $($_.Exception.Message)"
         Write-Warning "File anomaly detection error: $($_.Exception.Message)"
@@ -790,7 +790,7 @@ function Invoke-AdvancedFileSystemAnalysis {
             $carvingResults = Get-FileCarving -DriveLetter $driveLetter -OutputPath $analysisDir
             $workflow.Results.FileCarving = $carvingResults
             $workflow.Steps += "File Carving: Success - $carvingResults"
-            Write-Host "✓ File carving completed" -ForegroundColor Green
+            Write-Host "[OK] File carving completed" -ForegroundColor Green
         } catch {
             $workflow.Steps += "File Carving: Error - $($_.Exception.Message)"
             Write-Warning "File carving error: $($_.Exception.Message)"

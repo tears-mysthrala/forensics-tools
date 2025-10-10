@@ -293,12 +293,12 @@ function New-ForensicTimelineVisualization {
     # Write the timeline visualization
     $htmlContent | Out-File $timelineFile -Encoding UTF8
 
-    Write-Host "✓ Timeline visualization created: $timelineFile" -ForegroundColor Green
+    Write-Host "[OK] Timeline visualization created: $timelineFile" -ForegroundColor Green
 
     # Try to open the timeline in default browser
     try {
         Start-Process $timelineFile
-        Write-Host "✓ Timeline opened in default browser" -ForegroundColor Green
+        Write-Host "[OK] Timeline opened in default browser" -ForegroundColor Green
     } catch {
         Write-Host "Note: Could not automatically open timeline. Please open manually: $timelineFile" -ForegroundColor Yellow
     }

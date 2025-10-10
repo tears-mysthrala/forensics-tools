@@ -738,8 +738,13 @@ function Export-EvidenceReport {
 "@
 
         foreach ($item in $Evidence) {
-            $statusClass = $item.IsVerified ? "status-verified" : "status-unverified"
-            $statusText = $item.IsVerified ? "Verified" : "Unverified"
+            if ($item.IsVerified) {
+                $statusClass = "status-verified"
+                $statusText = "Verified"
+            } else {
+                $statusClass = "status-unverified"
+                $statusText = "Unverified"
+            }
 
             $html += @"
 
@@ -993,9 +998,21 @@ function Invoke-EvidenceAudit {
 "@
 
         foreach ($result in $auditResults) {
-            $fileStatus = $result.FileExists ? "<span class='status-good'>Yes</span>" : "<span class='status-bad'>No</span>"
-            $integrityStatus = $result.IntegrityVerified ? "<span class='status-good'>Verified</span>" : "<span class='status-bad'>Failed</span>"
-            $cocStatus = $result.ChainOfCustodyComplete ? "<span class='status-good'>Complete</span>" : "<span class='status-warning'>Incomplete</span>"
+            if ($result.FileExists) {
+                $fileStatus = "<span class='status-good'>Yes</span>"
+            } else {
+                $fileStatus = "<span class='status-bad'>No</span>"
+            }
+            if ($result.IntegrityVerified) {
+                $integrityStatus = "<span class='status-good'>Verified</span>"
+            } else {
+                $integrityStatus = "<span class='status-bad'>Failed</span>"
+            }
+            if ($result.ChainOfCustodyComplete) {
+                $cocStatus = "<span class='status-good'>Complete</span>"
+            } else {
+                $cocStatus = "<span class='status-warning'>Incomplete</span>"
+            }
             $issues = $result.Issues -join "; "
 
             $html += @"

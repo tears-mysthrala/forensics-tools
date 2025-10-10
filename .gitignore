@@ -93,3 +93,16 @@ devskim-results.sarif
 
 # Installed tools (if any)
 tools/
+
+# Portable PowerShell and installation artifacts
+PortablePowerShell/
+Setup-PortablePowerShell.ps1
+Install-ForensicsToolkit.ps1
+Launch-ForensicsToolkit.ps1
+Launch-ForensicsToolkit.cmd
+
+# Test directories and files
+test-install/
+test-portable/
+test-*/
+*-test/

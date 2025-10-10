@@ -51,7 +51,7 @@ function Start-NetworkCapture {
                         if ($Filter) { $cmd += " -f '$Filter'" }
                         Invoke-Expression $cmd
                         if (Test-Path $captureFile) {
-                            Write-Host "✓ Network capture completed with tshark: $captureFile" -ForegroundColor Green
+                            Write-Host "[OK] Network capture completed with tshark: $captureFile" -ForegroundColor Green
                             return $captureFile
                         }
                     } catch {
@@ -68,7 +68,7 @@ function Start-NetworkCapture {
                         if ($Filter) { $cmd += " -f '$Filter'" }
                         Invoke-Expression $cmd
                         if (Test-Path $captureFile) {
-                            Write-Host "✓ Network capture completed with dumpcap: $captureFile" -ForegroundColor Green
+                            Write-Host "[OK] Network capture completed with dumpcap: $captureFile" -ForegroundColor Green
                             return $captureFile
                         }
                     } catch {
@@ -85,7 +85,7 @@ function Start-NetworkCapture {
                     & netsh trace stop 2>$null
 
                     if (Test-Path $traceFile) {
-                        Write-Host "✓ Network trace completed with netsh: $traceFile" -ForegroundColor Green
+                        Write-Host "[OK] Network trace completed with netsh: $traceFile" -ForegroundColor Green
                         return $traceFile
                     }
                 } catch {
@@ -116,7 +116,7 @@ function Start-NetworkCapture {
                     }
 
                     $connections | Export-Csv "$captureFile.csv" -NoTypeInformation
-                    Write-Host "✓ Basic network monitoring completed: $captureFile.csv" -ForegroundColor Green
+                    Write-Host "[OK] Basic network monitoring completed: $captureFile.csv" -ForegroundColor Green
                     return "$captureFile.csv"
                 } catch {
                     Write-Warning "PowerShell monitoring failed: $($_.Exception.Message)"
@@ -196,7 +196,7 @@ function Get-NetworkTrafficAnalysis {
                     $suspiciousPorts | Out-File (Join-Path $analysisDir "suspicious_ports.txt")
 
                     $analysis.Analysis.PCAP = "Analyzed with tshark"
-                    Write-Host "✓ PCAP analysis completed" -ForegroundColor Green
+                    Write-Host "[OK] PCAP analysis completed" -ForegroundColor Green
                 } catch {
                     Write-Warning "PCAP analysis failed: $($_.Exception.Message)"
                     $analysis.Analysis.PCAP = "Analysis failed: $($_.Exception.Message)"
@@ -216,7 +216,7 @@ function Get-NetworkTrafficAnalysis {
 
                 if (Test-Path $textFile) {
                     $analysis.Analysis.ETL = "Converted to text format"
-                    Write-Host "✓ ETL analysis completed" -ForegroundColor Green
+                    Write-Host "[OK] ETL analysis completed" -ForegroundColor Green
                 } else {
                     $analysis.Analysis.ETL = "Conversion failed"
                 }
@@ -247,7 +247,7 @@ function Get-NetworkTrafficAnalysis {
                 $suspicious | Export-Csv (Join-Path $analysisDir "suspicious_connections.csv") -NoTypeInformation
 
                 $analysis.Analysis.CSV = "Analyzed $($connections.Count) connections"
-                Write-Host "✓ CSV analysis completed" -ForegroundColor Green
+                Write-Host "[OK] CSV analysis completed" -ForegroundColor Green
             } catch {
                 Write-Warning "CSV analysis failed: $($_.Exception.Message)"
                 $analysis.Analysis.CSV = "Analysis failed: $($_.Exception.Message)"
@@ -300,7 +300,7 @@ function Get-DNSAnalysis {
         $dnsCache = Get-DnsClientCache | Select-Object Name, Type, TTL, Data
         $dnsCache | Export-Csv (Join-Path $analysisDir "dns_cache.csv") -NoTypeInformation
         $dnsAnalysis.Analysis.DNSCache = "Collected $($dnsCache.Count) entries"
-        Write-Host "✓ DNS cache collected" -ForegroundColor Green
+        Write-Host "[OK] DNS cache collected" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to collect DNS cache: $($_.Exception.Message)"
         $dnsAnalysis.Analysis.DNSCache = "Error: $($_.Exception.Message)"
@@ -312,7 +312,7 @@ function Get-DNSAnalysis {
         $dnsConfig = Get-DnsClient | Select-Object InterfaceAlias, ConnectionSpecificSuffix, DNSServer
         $dnsConfig | Export-Csv (Join-Path $analysisDir "dns_configuration.csv") -NoTypeInformation
         $dnsAnalysis.Analysis.DNSConfig = "Collected configuration"
-        Write-Host "✓ DNS configuration analyzed" -ForegroundColor Green
+        Write-Host "[OK] DNS configuration analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze DNS config: $($_.Exception.Message)"
         $dnsAnalysis.Analysis.DNSConfig = "Error: $($_.Exception.Message)"
@@ -328,7 +328,7 @@ function Get-DNSAnalysis {
         if ($dnsEvents) {
             $dnsEvents | Export-Csv (Join-Path $analysisDir "dns_events.csv") -NoTypeInformation
             $dnsAnalysis.Analysis.DNSEvents = "Collected $($dnsEvents.Count) events"
-            Write-Host "✓ DNS events collected" -ForegroundColor Green
+            Write-Host "[OK] DNS events collected" -ForegroundColor Green
         } else {
             $dnsAnalysis.Analysis.DNSEvents = "No DNS events found"
         }
@@ -357,7 +357,7 @@ function Get-DNSAnalysis {
             Write-Host "⚠ Found suspicious domains in DNS cache" -ForegroundColor Red
         } else {
             $dnsAnalysis.Analysis.SuspiciousDomains = "No suspicious domains found"
-            Write-Host "✓ No suspicious domains found" -ForegroundColor Green
+            Write-Host "[OK] No suspicious domains found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to check suspicious domains: $($_.Exception.Message)"
@@ -452,7 +452,7 @@ function Get-FirewallLogAnalysis {
         $firewallAnalysis.Analysis.BlockedConnections = $blocked.Count
         $firewallAnalysis.Analysis.SuspiciousBlocks = $suspicious.Count
 
-        Write-Host "✓ Firewall log analysis completed" -ForegroundColor Green
+        Write-Host "[OK] Firewall log analysis completed" -ForegroundColor Green
         Write-Host "  Total entries: $($logEntries.Count)" -ForegroundColor Cyan
         Write-Host "  Blocked connections: $($blocked.Count)" -ForegroundColor Cyan
         Write-Host "  Suspicious blocks: $($suspicious.Count)" -ForegroundColor Cyan
@@ -516,7 +516,7 @@ function Get-NetworkAnomalies {
             Write-Host "⚠ Found $($unusualPorts.Count) unusual listening ports" -ForegroundColor Red
         } else {
             $anomalies.Anomalies.UnusualPorts = "No unusual listening ports found"
-            Write-Host "✓ No unusual listening ports found" -ForegroundColor Green
+            Write-Host "[OK] No unusual listening ports found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to check listening ports: $($_.Exception.Message)"
@@ -535,7 +535,7 @@ function Get-NetworkAnomalies {
             $externalConnections | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess |
                 Export-Csv (Join-Path $analysisDir "external_connections.csv") -NoTypeInformation
             $anomalies.Anomalies.ExternalConnections = "Found $($externalConnections.Count) external connections"
-            Write-Host "✓ Found $($externalConnections.Count) external connections" -ForegroundColor Green
+            Write-Host "[OK] Found $($externalConnections.Count) external connections" -ForegroundColor Green
         } else {
             $anomalies.Anomalies.ExternalConnections = "No external connections found"
         }
@@ -569,7 +569,7 @@ function Get-NetworkAnomalies {
             Write-Host "⚠ Found processes with high network activity" -ForegroundColor Yellow
         } else {
             $anomalies.Anomalies.SuspiciousProcesses = "No suspicious processes found"
-            Write-Host "✓ No suspicious processes found" -ForegroundColor Green
+            Write-Host "[OK] No suspicious processes found" -ForegroundColor Green
         }
     } catch {
         Write-Warning "Failed to check suspicious processes: $($_.Exception.Message)"
@@ -626,7 +626,7 @@ function Invoke-AdvancedNetworkAnalysis {
         if ($captureFile) {
             $workflow.Results.NetworkCapture = $captureFile
             $workflow.Steps += "Network Capture: Success - $captureFile"
-            Write-Host "✓ Network capture completed" -ForegroundColor Green
+            Write-Host "[OK] Network capture completed" -ForegroundColor Green
         } else {
             $workflow.Steps += "Network Capture: Failed - No capture tool available"
             Write-Warning "Network capture failed"
@@ -643,7 +643,7 @@ function Invoke-AdvancedNetworkAnalysis {
             $trafficAnalysis = Get-NetworkTrafficAnalysis -CaptureFile $captureFile -OutputPath $analysisDir
             $workflow.Results.TrafficAnalysis = $trafficAnalysis
             $workflow.Steps += "Traffic Analysis: Success - $trafficAnalysis"
-            Write-Host "✓ Traffic analysis completed" -ForegroundColor Green
+            Write-Host "[OK] Traffic analysis completed" -ForegroundColor Green
         } catch {
             $workflow.Steps += "Traffic Analysis: Error - $($_.Exception.Message)"
             Write-Warning "Traffic analysis error: $($_.Exception.Message)"
@@ -656,7 +656,7 @@ function Invoke-AdvancedNetworkAnalysis {
         $dnsAnalysis = Get-DNSAnalysis -OutputPath $analysisDir
         $workflow.Results.DNSAnalysis = $dnsAnalysis
         $workflow.Steps += "DNS Analysis: Success - $dnsAnalysis"
-        Write-Host "✓ DNS analysis completed" -ForegroundColor Green
+        Write-Host "[OK] DNS analysis completed" -ForegroundColor Green
     } catch {
         $workflow.Steps += "DNS Analysis: Error - $($_.Exception.Message)"
         Write-Warning "DNS analysis error: $($_.Exception.Message)"
@@ -668,7 +668,7 @@ function Invoke-AdvancedNetworkAnalysis {
         $firewallAnalysis = Get-FirewallLogAnalysis -OutputPath $analysisDir
         $workflow.Results.FirewallAnalysis = $firewallAnalysis
         $workflow.Steps += "Firewall Analysis: Success - $firewallAnalysis"
-        Write-Host "✓ Firewall analysis completed" -ForegroundColor Green
+        Write-Host "[OK] Firewall analysis completed" -ForegroundColor Green
     } catch {
         $workflow.Steps += "Firewall Analysis: Error - $($_.Exception.Message)"
         Write-Warning "Firewall analysis error: $($_.Exception.Message)"
@@ -680,7 +680,7 @@ function Invoke-AdvancedNetworkAnalysis {
         $anomalies = Get-NetworkAnomalies -OutputPath $analysisDir
         $workflow.Results.AnomalyDetection = $anomalies
         $workflow.Steps += "Anomaly Detection: Success - $anomalies"
-        Write-Host "✓ Anomaly detection completed" -ForegroundColor Green
+        Write-Host "[OK] Anomaly detection completed" -ForegroundColor Green
     } catch {
         $workflow.Steps += "Anomaly Detection: Error - $($_.Exception.Message)"
         Write-Warning "Anomaly detection error: $($_.Exception.Message)"

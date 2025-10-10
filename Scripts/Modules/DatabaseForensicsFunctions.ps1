@@ -1005,11 +1005,18 @@ function Export-DatabaseSchema {
                 </tr>
 "@
                         foreach ($column in $table.Columns) {
+                            # Calculate nullable value
+                            if ($column.NotNull) {
+                                $nullableValue = 'No'
+                            } else {
+                                $nullableValue = 'Yes'
+                            }
+
                             $html += @"
                 <tr>
                     <td>$($column.Name)</td>
                     <td>$($column.Type)</td>
-                    <td>$($column.NotNull ? 'No' : 'Yes')</td>
+                    <td>$nullableValue</td>
                     <td>$($column.DefaultValue)</td>
                 </tr>
 "@

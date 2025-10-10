@@ -560,12 +560,12 @@ function New-EvidenceCorrelationDashboard {
     # Write the correlation dashboard
     $htmlContent | Out-File $dashboardFile -Encoding UTF8
 
-    Write-Host "✓ Evidence correlation dashboard created: $dashboardFile" -ForegroundColor Green
+    Write-Host "[OK] Evidence correlation dashboard created: $dashboardFile" -ForegroundColor Green
 
     # Try to open the dashboard in default browser
     try {
         Start-Process $dashboardFile
-        Write-Host "✓ Dashboard opened in default browser" -ForegroundColor Green
+        Write-Host "[OK] Dashboard opened in default browser" -ForegroundColor Green
     } catch {
         Write-Host "Note: Could not automatically open dashboard. Please open manually: $dashboardFile" -ForegroundColor Yellow
     }

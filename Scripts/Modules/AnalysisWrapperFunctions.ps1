@@ -25,7 +25,7 @@ function Invoke-LiveSystemStatus {
     Write-Host "Gathering system information..." -ForegroundColor Yellow
     try {
         $status.SystemInfo = Get-SystemInfo
-        Write-Host "✓ System information collected" -ForegroundColor Green
+        Write-Host "[OK] System information collected" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to get system info: $($_.Exception.Message)"
     }
@@ -34,7 +34,7 @@ function Invoke-LiveSystemStatus {
     Write-Host "Checking running processes..." -ForegroundColor Yellow
     try {
         $status.Processes = Get-ProcessDetails | Where-Object { $_.ProcessName -notlike "*svchost*" } | Select-Object -First 20
-        Write-Host "✓ Process information collected (showing top 20 non-svchost)" -ForegroundColor Green
+        Write-Host "[OK] Process information collected (showing top 20 non-svchost)" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to get process info: $($_.Exception.Message)"
     }
@@ -43,7 +43,7 @@ function Invoke-LiveSystemStatus {
     Write-Host "Checking network connections..." -ForegroundColor Yellow
     try {
         $status.Network = Get-NetworkConnections | Where-Object { $_.State -eq "Established" } | Select-Object -First 10
-        Write-Host "✓ Network connections collected (showing top 10 established)" -ForegroundColor Green
+        Write-Host "[OK] Network connections collected (showing top 10 established)" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to get network info: $($_.Exception.Message)"
     }
@@ -52,7 +52,7 @@ function Invoke-LiveSystemStatus {
     Write-Host "Checking critical services..." -ForegroundColor Yellow
     try {
         $status.Services = Get-ServicesStatus | Where-Object { $_.Status -ne "Running" }
-        Write-Host "✓ Service status collected (showing non-running services)" -ForegroundColor Green
+        Write-Host "[OK] Service status collected (showing non-running services)" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to get service info: $($_.Exception.Message)"
     }
@@ -85,7 +85,7 @@ function Invoke-SystemAnalysis {
     Write-Host "Analyzing system configuration..." -ForegroundColor Yellow
     try {
         $analysis.SystemConfiguration = Get-SystemInfo
-        Write-Host "✓ System configuration analyzed" -ForegroundColor Green
+        Write-Host "[OK] System configuration analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze system config: $($_.Exception.Message)"
     }
@@ -94,7 +94,7 @@ function Invoke-SystemAnalysis {
     Write-Host "Analyzing user accounts..." -ForegroundColor Yellow
     try {
         $analysis.UserAccounts = Get-UserAccounts
-        Write-Host "✓ User accounts analyzed" -ForegroundColor Green
+        Write-Host "[OK] User accounts analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze user accounts: $($_.Exception.Message)"
     }
@@ -103,7 +103,7 @@ function Invoke-SystemAnalysis {
     Write-Host "Analyzing scheduled tasks..." -ForegroundColor Yellow
     try {
         $analysis.ScheduledTasks = Get-ScheduledTasks
-        Write-Host "✓ Scheduled tasks analyzed" -ForegroundColor Green
+        Write-Host "[OK] Scheduled tasks analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze scheduled tasks: $($_.Exception.Message)"
     }
@@ -112,7 +112,7 @@ function Invoke-SystemAnalysis {
     Write-Host "Analyzing system logs..." -ForegroundColor Yellow
     try {
         $analysis.SystemLogs = Get-SystemLogsSummary
-        Write-Host "✓ System logs analyzed" -ForegroundColor Green
+        Write-Host "[OK] System logs analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze system logs: $($_.Exception.Message)"
     }
@@ -126,7 +126,7 @@ function Invoke-SystemAnalysis {
             RunKeys = $runKeys
             RunOnceKeys = $runOnceKeys
         }
-        Write-Host "✓ Registry persistence analyzed" -ForegroundColor Green
+        Write-Host "[OK] Registry persistence analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze registry: $($_.Exception.Message)"
     }
@@ -159,7 +159,7 @@ function Invoke-NetworkAnalysis {
     Write-Host "Analyzing network connections..." -ForegroundColor Yellow
     try {
         $analysis.NetworkConnections = Get-NetworkConnections
-        Write-Host "✓ Network connections analyzed" -ForegroundColor Green
+        Write-Host "[OK] Network connections analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze network connections: $($_.Exception.Message)"
     }
@@ -168,7 +168,7 @@ function Invoke-NetworkAnalysis {
     Write-Host "Analyzing network shares..." -ForegroundColor Yellow
     try {
         $analysis.NetworkShares = Get-NetworkShares
-        Write-Host "✓ Network shares analyzed" -ForegroundColor Green
+        Write-Host "[OK] Network shares analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze network shares: $($_.Exception.Message)"
     }
@@ -177,7 +177,7 @@ function Invoke-NetworkAnalysis {
     Write-Host "Analyzing firewall rules..." -ForegroundColor Yellow
     try {
         $analysis.FirewallRules = Get-NetFirewallRule | Where-Object { $_.Enabled -eq $true } | Select-Object DisplayName, Direction, Action, Profile
-        Write-Host "✓ Firewall rules analyzed" -ForegroundColor Green
+        Write-Host "[OK] Firewall rules analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze firewall rules: $($_.Exception.Message)"
     }
@@ -186,7 +186,7 @@ function Invoke-NetworkAnalysis {
     Write-Host "Analyzing USB device history..." -ForegroundColor Yellow
     try {
         $analysis.USBHistory = Get-USBDeviceHistory
-        Write-Host "✓ USB device history analyzed" -ForegroundColor Green
+        Write-Host "[OK] USB device history analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze USB history: $($_.Exception.Message)"
     }
@@ -195,7 +195,7 @@ function Invoke-NetworkAnalysis {
     Write-Host "Analyzing network configuration..." -ForegroundColor Yellow
     try {
         $analysis.NetworkConfig = Get-NetAdapter | Select-Object Name, Status, MacAddress, LinkSpeed
-        Write-Host "✓ Network configuration analyzed" -ForegroundColor Green
+        Write-Host "[OK] Network configuration analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze network config: $($_.Exception.Message)"
     }
@@ -228,7 +228,7 @@ function Invoke-FileSystemAnalysis {
     Write-Host "Analyzing recent files..." -ForegroundColor Yellow
     try {
         $analysis.RecentFiles = Get-RecentFiles -Days 7
-        Write-Host "✓ Recent files analyzed" -ForegroundColor Green
+        Write-Host "[OK] Recent files analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze recent files: $($_.Exception.Message)"
     }
@@ -237,7 +237,7 @@ function Invoke-FileSystemAnalysis {
     Write-Host "Analyzing large files..." -ForegroundColor Yellow
     try {
         $analysis.LargeFiles = Get-LargeFiles -SizeMB 500
-        Write-Host "✓ Large files analyzed" -ForegroundColor Green
+        Write-Host "[OK] Large files analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze large files: $($_.Exception.Message)"
     }
@@ -246,7 +246,7 @@ function Invoke-FileSystemAnalysis {
     Write-Host "Analyzing alternate data streams..." -ForegroundColor Yellow
     try {
         $analysis.AlternateDataStreams = Get-AlternateDataStreams -Path "C:\"
-        Write-Host "✓ Alternate data streams analyzed" -ForegroundColor Green
+        Write-Host "[OK] Alternate data streams analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze ADS: $($_.Exception.Message)"
     }
@@ -266,7 +266,7 @@ function Invoke-FileSystemAnalysis {
             }
         }
         $analysis.FileHashes = $hashResults
-        Write-Host "✓ File hashes calculated" -ForegroundColor Green
+        Write-Host "[OK] File hashes calculated" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to calculate file hashes: $($_.Exception.Message)"
     }
@@ -286,7 +286,7 @@ function Invoke-FileSystemAnalysis {
             }
         }
         $analysis.SuspiciousFiles = $suspiciousFiles
-        Write-Host "✓ Suspicious files checked" -ForegroundColor Green
+        Write-Host "[OK] Suspicious files checked" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to check suspicious files: $($_.Exception.Message)"
     }
@@ -319,7 +319,7 @@ function Invoke-SecurityAnalysis {
     Write-Host "Analyzing security events..." -ForegroundColor Yellow
     try {
         $analysis.SecurityEvents = Search-EventLogs -LogName "Security" -EventId 4625,4624,4634,4648 -Hours 24
-        Write-Host "✓ Security events analyzed" -ForegroundColor Green
+        Write-Host "[OK] Security events analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze security events: $($_.Exception.Message)"
     }
@@ -336,7 +336,7 @@ function Invoke-SecurityAnalysis {
             IsAdmin = $principal.IsInRole($adminRole)
             Groups = $currentUser.Groups | ForEach-Object { $_.Translate([Security.Principal.NTAccount]).Value }
         }
-        Write-Host "✓ User privileges analyzed" -ForegroundColor Green
+        Write-Host "[OK] User privileges analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze user privileges: $($_.Exception.Message)"
     }
@@ -345,7 +345,7 @@ function Invoke-SecurityAnalysis {
     Write-Host "Analyzing installed software..." -ForegroundColor Yellow
     try {
         $analysis.InstalledSoftware = Get-CimInstance Win32_Product | Select-Object Name, Version, Vendor | Sort-Object Name
-        Write-Host "✓ Installed software analyzed" -ForegroundColor Green
+        Write-Host "[OK] Installed software analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze installed software: $($_.Exception.Message)"
     }
@@ -359,7 +359,7 @@ function Invoke-SecurityAnalysis {
         } else {
             $analysis.AntivirusStatus = "Security Center not available or no antivirus detected"
         }
-        Write-Host "✓ Antivirus status checked" -ForegroundColor Green
+        Write-Host "[OK] Antivirus status checked" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to check antivirus status: $($_.Exception.Message)"
     }
@@ -368,7 +368,7 @@ function Invoke-SecurityAnalysis {
     Write-Host "Analyzing open ports..." -ForegroundColor Yellow
     try {
         $analysis.OpenPorts = Get-NetTCPConnection | Where-Object { $_.State -eq "Listen" } | Select-Object LocalAddress, LocalPort, OwningProcess
-        Write-Host "✓ Open ports analyzed" -ForegroundColor Green
+        Write-Host "[OK] Open ports analyzed" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to analyze open ports: $($_.Exception.Message)"
     }
@@ -401,7 +401,7 @@ function Invoke-QuickForensicScan {
     Write-Host "Checking system status..." -ForegroundColor Yellow
     try {
         $scan.SystemStatus = Invoke-LiveSystemStatus
-        Write-Host "✓ System status checked" -ForegroundColor Green
+        Write-Host "[OK] System status checked" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to check system status: $($_.Exception.Message)"
     }
@@ -414,7 +414,7 @@ function Invoke-QuickForensicScan {
             $_.StartTime -gt (Get-Date).AddHours(-1)
         } | Select-Object Name, Id, StartTime, CPU, WorkingSet
         $scan.SuspiciousProcesses = $suspicious
-        Write-Host "✓ Suspicious processes checked" -ForegroundColor Green
+        Write-Host "[OK] Suspicious processes checked" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to check suspicious processes: $($_.Exception.Message)"
     }
@@ -425,7 +425,7 @@ function Invoke-QuickForensicScan {
         $scan.NetworkConnections = Get-NetworkConnections | Where-Object {
             $_.RemoteAddress -notmatch "^(127\.|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)"
         } | Select-Object -First 10
-        Write-Host "✓ Network connections checked" -ForegroundColor Green
+        Write-Host "[OK] Network connections checked" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to check network connections: $($_.Exception.Message)"
     }
@@ -434,7 +434,7 @@ function Invoke-QuickForensicScan {
     Write-Host "Checking recent files..." -ForegroundColor Yellow
     try {
         $scan.RecentFiles = Get-RecentFiles -Days 1
-        Write-Host "✓ Recent files checked" -ForegroundColor Green
+        Write-Host "[OK] Recent files checked" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to check recent files: $($_.Exception.Message)"
     }
@@ -443,7 +443,7 @@ function Invoke-QuickForensicScan {
     Write-Host "Checking recent security events..." -ForegroundColor Yellow
     try {
         $scan.SecurityEvents = Search-EventLogs -LogName "Security" -Hours 1 | Select-Object -First 5
-        Write-Host "✓ Security events checked" -ForegroundColor Green
+        Write-Host "[OK] Security events checked" -ForegroundColor Green
     } catch {
         Write-Warning "Failed to check security events: $($_.Exception.Message)"
     }
@@ -493,7 +493,7 @@ function Invoke-ForensicWorkflow {
         $result | ConvertTo-Json -Depth 3 | Out-File (Join-Path $workflowDir "01_system_status.json")
         $workflow.Results.SystemStatus = "Completed"
         $workflow.WorkflowSteps += "System Status: Completed"
-        Write-Host "✓ System status completed" -ForegroundColor Green
+        Write-Host "[OK] System status completed" -ForegroundColor Green
     } catch {
         $workflow.WorkflowSteps += "System Status: Failed - $($_.Exception.Message)"
         Write-Warning "System status failed: $($_.Exception.Message)"
@@ -506,7 +506,7 @@ function Invoke-ForensicWorkflow {
         $result | ConvertTo-Json -Depth 3 | Out-File (Join-Path $workflowDir "02_system_analysis.json")
         $workflow.Results.SystemAnalysis = "Completed"
         $workflow.WorkflowSteps += "System Analysis: Completed"
-        Write-Host "✓ System analysis completed" -ForegroundColor Green
+        Write-Host "[OK] System analysis completed" -ForegroundColor Green
     } catch {
         $workflow.WorkflowSteps += "System Analysis: Failed - $($_.Exception.Message)"
         Write-Warning "System analysis failed: $($_.Exception.Message)"
@@ -519,7 +519,7 @@ function Invoke-ForensicWorkflow {
         $result | ConvertTo-Json -Depth 3 | Out-File (Join-Path $workflowDir "03_network_analysis.json")
         $workflow.Results.NetworkAnalysis = "Completed"
         $workflow.WorkflowSteps += "Network Analysis: Completed"
-        Write-Host "✓ Network analysis completed" -ForegroundColor Green
+        Write-Host "[OK] Network analysis completed" -ForegroundColor Green
     } catch {
         $workflow.WorkflowSteps += "Network Analysis: Failed - $($_.Exception.Message)"
         Write-Warning "Network analysis failed: $($_.Exception.Message)"
@@ -532,7 +532,7 @@ function Invoke-ForensicWorkflow {
         $result | ConvertTo-Json -Depth 3 | Out-File (Join-Path $workflowDir "04_filesystem_analysis.json")
         $workflow.Results.FileSystemAnalysis = "Completed"
         $workflow.WorkflowSteps += "File System Analysis: Completed"
-        Write-Host "✓ File system analysis completed" -ForegroundColor Green
+        Write-Host "[OK] File system analysis completed" -ForegroundColor Green
     } catch {
         $workflow.WorkflowSteps += "File System Analysis: Failed - $($_.Exception.Message)"
         Write-Warning "File system analysis failed: $($_.Exception.Message)"
@@ -545,7 +545,7 @@ function Invoke-ForensicWorkflow {
         $result | ConvertTo-Json -Depth 3 | Out-File (Join-Path $workflowDir "05_security_analysis.json")
         $workflow.Results.SecurityAnalysis = "Completed"
         $workflow.WorkflowSteps += "Security Analysis: Completed"
-        Write-Host "✓ Security analysis completed" -ForegroundColor Green
+        Write-Host "[OK] Security analysis completed" -ForegroundColor Green
     } catch {
         $workflow.WorkflowSteps += "Security Analysis: Failed - $($_.Exception.Message)"
         Write-Warning "Security analysis failed: $($_.Exception.Message)"
@@ -559,7 +559,7 @@ function Invoke-ForensicWorkflow {
             if ($memoryDump) {
                 $workflow.Results.MemoryAnalysis = "Completed - $memoryDump"
                 $workflow.WorkflowSteps += "Memory Analysis: Completed"
-                Write-Host "✓ Memory analysis completed" -ForegroundColor Green
+                Write-Host "[OK] Memory analysis completed" -ForegroundColor Green
             } else {
                 $workflow.WorkflowSteps += "Memory Analysis: No memory dump tool available"
                 Write-Warning "Memory analysis: No memory dump tool available"
@@ -578,7 +578,7 @@ function Invoke-ForensicWorkflow {
         $workflow.Results.Report = "Generated - $reportFile"
         $workflow.Results.Timeline = "Generated - $timelineFile"
         $workflow.WorkflowSteps += "Report Generation: Completed"
-        Write-Host "✓ Report generation completed" -ForegroundColor Green
+        Write-Host "[OK] Report generation completed" -ForegroundColor Green
     } catch {
         $workflow.WorkflowSteps += "Report Generation: Failed - $($_.Exception.Message)"
         Write-Warning "Report generation failed: $($_.Exception.Message)"

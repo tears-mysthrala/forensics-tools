@@ -109,12 +109,12 @@ function New-ForensicHTMLReport {
     # Write the HTML report
     $htmlContent | Out-File $reportFile -Encoding UTF8
 
-    Write-Host "✓ HTML report created: $reportFile" -ForegroundColor Green
+    Write-Host "[OK] HTML report created: $reportFile" -ForegroundColor Green
 
     # Try to open the report in default browser
     try {
         Start-Process $reportFile
-        Write-Host "✓ Report opened in default browser" -ForegroundColor Green
+        Write-Host "[OK] Report opened in default browser" -ForegroundColor Green
     } catch {
         Write-Host "Note: Could not automatically open report. Please open manually: $reportFile" -ForegroundColor Yellow
     }

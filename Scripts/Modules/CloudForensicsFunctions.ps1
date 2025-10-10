@@ -65,7 +65,7 @@ function Get-AzureResourceInventory {
             az account set --subscription $SubscriptionId
         }
 
-        Write-Host "✓ Connected to Azure" -ForegroundColor Green
+        Write-Host "[OK] Connected to Azure" -ForegroundColor Green
 
     } catch {
         Write-Error "Failed to connect to Azure: $($_.Exception.Message)"
@@ -113,7 +113,7 @@ function Get-AzureResourceInventory {
 
             $inventoryResults.Resources[$resourceType] = $resources
 
-            Write-Host "✓ Found $($resources.Count) $resourceType resources" -ForegroundColor Green
+            Write-Host "[OK] Found $($resources.Count) $resourceType resources" -ForegroundColor Green
 
         } catch {
             Write-Warning "Failed to inventory $resourceType resources: $($_.Exception.Message)"
@@ -271,9 +271,9 @@ function Get-AzureActivityLogs {
                 }
             }
 
-            Write-Host "✓ Retrieved $($logs.Count) activity log entries" -ForegroundColor Green
+            Write-Host "[OK] Retrieved $($logs.Count) activity log entries" -ForegroundColor Green
         } else {
-            Write-Host "✓ No activity logs found in the specified time range" -ForegroundColor Green
+            Write-Host "[OK] No activity logs found in the specified time range" -ForegroundColor Green
         }
 
     } catch {
@@ -402,7 +402,7 @@ function Get-AzureStorageAnalysis {
             $storageResults.Containers += $containerInfo
         }
 
-        Write-Host "✓ Found $($storageResults.Containers.Count) containers with $($storageResults.Blobs.Count) total blobs" -ForegroundColor Green
+        Write-Host "[OK] Found $($storageResults.Containers.Count) containers with $($storageResults.Blobs.Count) total blobs" -ForegroundColor Green
 
         # Analyze access patterns (if logging enabled)
         Write-Host "Checking storage analytics..." -ForegroundColor Yellow
@@ -547,7 +547,7 @@ function Get-AzureVMArtifacts {
             Write-Warning "Failed to get diagnostic settings: $($_.Exception.Message)"
         }
 
-        Write-Host "✓ Collected VM artifacts" -ForegroundColor Green
+        Write-Host "[OK] Collected VM artifacts" -ForegroundColor Green
 
     } catch {
         Write-Warning "Failed to collect VM artifacts: $($_.Exception.Message)"
@@ -613,7 +613,7 @@ function Invoke-AzureCloudForensics {
         $inventoryResults = Get-AzureResourceInventory -SubscriptionId $SubscriptionId -OutputPath $analysisDir
         $workflow.Results.ResourceInventory = $inventoryResults
         $workflow.Steps += "Resource Inventory: Success - $inventoryResults"
-        Write-Host "✓ Resource inventory completed" -ForegroundColor Green
+        Write-Host "[OK] Resource inventory completed" -ForegroundColor Green
     } catch {
         $workflow.Steps += "Resource Inventory: Error - $($_.Exception.Message)"
         Write-Warning "Resource inventory error: $($_.Exception.Message)"
@@ -625,7 +625,7 @@ function Invoke-AzureCloudForensics {
         $logsResults = Get-AzureActivityLogs -SubscriptionId $SubscriptionId -Days 30 -OutputPath $analysisDir
         $workflow.Results.ActivityLogs = $logsResults
         $workflow.Steps += "Activity Logs: Success - $logsResults"
-        Write-Host "✓ Activity logs collected" -ForegroundColor Green
+        Write-Host "[OK] Activity logs collected" -ForegroundColor Green
     } catch {
         $workflow.Steps += "Activity Logs: Error - $($_.Exception.Message)"
         Write-Warning "Activity logs error: $($_.Exception.Message)"
@@ -649,7 +649,7 @@ function Invoke-AzureCloudForensics {
                     }
                     $workflow.Results.StorageAnalysis = $storageResults
                     $workflow.Steps += "Storage Analysis: Success - Analyzed $($storageAccounts.Count) accounts"
-                    Write-Host "✓ Storage analysis completed" -ForegroundColor Green
+                    Write-Host "[OK] Storage analysis completed" -ForegroundColor Green
                 } else {
                     $workflow.Steps += "Storage Analysis: No storage accounts found"
                 }
@@ -680,7 +680,7 @@ function Invoke-AzureCloudForensics {
                     }
                     $workflow.Results.VMArtifacts = $vmResults
                     $workflow.Steps += "VM Artifacts: Success - Collected from $($vms.Count) VMs"
-                    Write-Host "✓ VM artifact collection completed" -ForegroundColor Green
+                    Write-Host "[OK] VM artifact collection completed" -ForegroundColor Green
                 } else {
                     $workflow.Steps += "VM Artifacts: No VMs found"
                 }
