@@ -130,9 +130,32 @@ if ($FailedModules -gt 0) {
 $ForensicFunctions = Get-Command -CommandType Function
 
 Write-Host ""
-Write-Host "Available Forensic Functions:" -ForegroundColor Cyan
-$ForensicFunctions | Sort-Object Name | ForEach-Object {
-    Write-Host "  $($_.Name)" -ForegroundColor White
+Write-Host "Key Forensic Functions:" -ForegroundColor Cyan
+
+$KeyFunctions = @(
+    "Get-SystemInfo",
+    "Get-ProcessDetails", 
+    "Get-NetworkConnections",
+    "Get-FileHashes",
+    "Analyze-File",
+    "Get-EventLogsSummary",
+    "Search-EventLogs",
+    "Get-RegistryKeys",
+    "Get-MemoryDump",
+    "Collect-SystemEvidence"
+)
+
+$AvailableKeyFunctions = $KeyFunctions | Where-Object {
+    Get-Command $_ -ErrorAction SilentlyContinue
+}
+
+if ($AvailableKeyFunctions) {
+    $AvailableKeyFunctions | Sort-Object | ForEach-Object {
+        Write-Host "  $_" -ForegroundColor White
+    }
+}
+else {
+    Write-Host "No key forensic functions found." -ForegroundColor Yellow
 }
 
 Write-Host ""

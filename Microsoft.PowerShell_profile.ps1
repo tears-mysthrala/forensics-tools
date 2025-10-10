@@ -126,7 +126,7 @@ else {
 
     # Load forensic-specific functions
     if (-not (Get-Command Get-SystemInfo -ErrorAction SilentlyContinue)) {
-        . "$forensicsPath\Scripts\ForensicFunctions.ps1"
+        . "$forensicsPath\Scripts\ForensicFunctions_new.ps1"
     }
 
     # Import forensic modules if available
