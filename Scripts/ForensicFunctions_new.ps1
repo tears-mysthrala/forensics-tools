@@ -67,8 +67,7 @@ $Modules = @(
     "AndroidDeviceFunctions.ps1",
     "iOSDeviceFunctions.ps1",
     "MobileDeviceReportingFunctions.ps1",
-    "IncidentResponseAutomationFunctions.ps1",
-    "AutomatedReportingFunctions.ps1"
+    "IncidentResponseAutomationFunctions.ps1"
 )
 
 $LoadedModules = 0
@@ -97,24 +96,14 @@ foreach ($module in $Modules) {
 $automationFunctionsPath = Join-Path $PSScriptRoot "Modules\AutomationFunctions.ps1"
 if (Test-Path $automationFunctionsPath) {
     Write-Host "Loading Automation Functions..." -ForegroundColor Cyan
-    try {
-        . $automationFunctionsPath
-    }
-    catch {
-        Write-Warning "Failed to load forensic toolkit: $($_.Exception.Message)"
-    }
+    . $automationFunctionsPath
 }
 
 # Load Performance Functions
 $performanceFunctionsPath = Join-Path $PSScriptRoot "Modules\PerformanceFunctions.ps1"
 if (Test-Path $performanceFunctionsPath) {
     Write-Host "Loading Performance Functions..." -ForegroundColor Cyan
-    try {
-        . $performanceFunctionsPath
-    }
-    catch {
-        Write-Warning "Failed to load Performance Functions: $($_.Exception.Message)"
-    }
+    . $performanceFunctionsPath
 }
 
 # Check for Administrator privileges
@@ -123,10 +112,11 @@ $IsAdministrator = (New-Object Security.Principal.WindowsPrincipal([Security.Pri
 if (-not $IsAdministrator) {
     Write-Host ""
     Write-Host "WARNING: ELEVATION REQUIRED" -ForegroundColor Yellow
-    Write-Host "Some functions require Administrator privileges." -ForegroundColor Yellow
+    Write-Host "Some functions require Administrator privileges" -ForegroundColor Yellow
 }
 else {
-    Write-Host "`nRunning with Administrator privileges" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Running with Administrator privileges" -ForegroundColor Green
 }
 
 # Display loading summary
@@ -137,10 +127,7 @@ if ($FailedModules -gt 0) {
 }
 
 # Display available functions
-$ForensicFunctions = Get-Command -CommandType Function | Where-Object {
-    $_.Name -match '^(Get-|Invoke-|Collect-|Search-|Export-)' -and
-    $_.Source -match 'ForensicFunctions|Modules'
-}
+$ForensicFunctions = Get-Command -CommandType Function
 
 Write-Host ""
 Write-Host "Available Forensic Functions:" -ForegroundColor Cyan

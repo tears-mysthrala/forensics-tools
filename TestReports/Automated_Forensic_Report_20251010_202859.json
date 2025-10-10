@@ -1,0 +1,27 @@
+﻿{
+    "SystemInfo":  {
+                       "Hostname":  "KALISTA",
+                       "OS":  "Microsoft Windows 11 Pro",
+                       "Version":  "10.0.26200",
+                       "Build":  "26200",
+                       "Manufacturer":  "Gigabyte Technology Co., Ltd.",
+                       "Model":  "B650 EAGLE AX",
+                       "BIOSVersion":  "ALASKA - 1072009",
+                       "SerialNumber":  "Default string",
+                       "Uptime":  {
+                                      "Ticks":  2098968758712,
+                                      "Days":  2,
+                                      "Hours":  10,
+                                      "Milliseconds":  875,
+                                      "Minutes":  18,
+                                      "Seconds":  16,
+                                      "TotalDays":  2.42936198925,
+                                      "TotalHours":  58.304687742,
+                                      "TotalMilliseconds":  209896875.8712,
+                                      "TotalMinutes":  3498.28126452,
+                                      "TotalSeconds":  209896.8758712
+                                  },
+                       "CurrentUser":  "unaiu",
+                       "Domain":  "WORKGROUP"
+                   }
+}
