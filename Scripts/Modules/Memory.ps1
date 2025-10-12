@@ -169,14 +169,14 @@ function Get-VolatilityAnalysis {
     .PARAMETER MemoryDump
         Path to the memory dump file.
     .PARAMETER AnalysisType
-        Type of analysis: 'pslist', 'netscan', 'malfind', 'handles'.
+        Type of analysis: 'pslist', 'netscan', 'malware.malfind', 'handles'.
     .EXAMPLE
         Get-VolatilityAnalysis -MemoryDump C:\Evidence\memory.dmp -AnalysisType windows.pslist
     #>
     param(
         [Parameter(Mandatory = $true)]
         [string]$MemoryDump,
-        [ValidateSet('windows.pslist', 'windows.netscan', 'windows.malfind', 'windows.handles', 'windows.dlllist')]
+        [ValidateSet('windows.pslist', 'windows.netscan', 'windows.malware.malfind', 'windows.handles', 'windows.dlllist')]
         [string]$AnalysisType = 'windows.pslist'
     )
 

@@ -161,7 +161,7 @@ function Invoke-VolatilityAnalysis {
                 @{Name = "windows.dlllist"; Description = "DLLs loaded by processes" },
                 @{Name = "windows.handles"; Description = "Handle table" },
                 @{Name = "windows.registry.hivelist"; Description = "Registry hives" },
-                @{Name = "windows.malfind"; Description = "Malware detection" },
+                @{Name = "windows.malware.malfind"; Description = "Malware detection" },
                 @{Name = "windows.modscan"; Description = "Module scan" },
                 @{Name = "windows.cmdline"; Description = "Command line arguments" },
                 @{Name = "windows.envars"; Description = "Environment variables" }
@@ -195,7 +195,7 @@ function Invoke-VolatilityAnalysis {
         }
         'malware' {
             $plugins = @(
-                @{Name = "windows.malfind"; Description = "Malware detection" },
+                @{Name = "windows.malware.malfind"; Description = "Malware detection" },
                 @{Name = "windows.modscan"; Description = "Module scan" },
                 @{Name = "windows.ssdt"; Description = "System service descriptor table" },
                 @{Name = "windows.callbacks"; Description = "Callback functions" },
@@ -420,8 +420,8 @@ function Get-MemoryTimeline {
             # Parse typical Volatility timeliner output
             if ($_ -match "(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6})\s+(\w+)\s+(.+)") {
                 $timeline += [PSCustomObject]@{
-                    Timestamp = $matches[1]
-                    Plugin = $matches[2]
+                    Timestamp   = $matches[1]
+                    Plugin      = $matches[2]
                     Description = $matches[3]
                 }
             }
@@ -438,7 +438,8 @@ function Get-MemoryTimeline {
 
         return $timelineFile
 
-    } catch {
+    }
+    catch {
         Write-Error "Failed to create memory timeline: $($_.Exception.Message)"
     }
 
@@ -461,7 +462,7 @@ function Get-MemoryStrings {
         Get-MemoryStrings -MemoryDump C:\Evidence\memory.dmp -MinLength 8
     #>
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$MemoryDump,
         [int]$MinLength = 4,
         [string]$OutputPath = "."
@@ -488,7 +489,8 @@ function Get-MemoryStrings {
             if ($byte -ge 32 -and $byte -le 126) {
                 # Printable ASCII character
                 $currentString += [char]$byte
-            } else {
+            }
+            else {
                 # Non-printable character
                 if ($currentString.Length -ge $MinLength) {
                     $strings.Add($currentString)
@@ -505,7 +507,8 @@ function Get-MemoryStrings {
 
         return $stringsFile
 
-    } catch {
+    }
+    catch {
         Write-Error "Failed to extract memory strings: $($_.Exception.Message)"
     }
 
@@ -548,11 +551,13 @@ function Get-MemoryArtifacts {
         if ($clipboard) {
             $clipboard | Out-File (Join-Path $artifactsDir "clipboard.txt")
             $artifacts.Artifacts.Clipboard = "Collected"
-        } else {
+        }
+        else {
             $artifacts.Artifacts.Clipboard = "No text content"
         }
         Write-Host "[OK] Clipboard collected" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to collect clipboard: $($_.Exception.Message)"
         $artifacts.Artifacts.Clipboard = "Error: $($_.Exception.Message)"
     }
@@ -564,7 +569,8 @@ function Get-MemoryArtifacts {
         $envVars | Export-Csv (Join-Path $artifactsDir "environment_variables.csv") -NoTypeInformation
         $artifacts.Artifacts.EnvironmentVariables = "Collected"
         Write-Host "[OK] Environment variables collected" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to collect environment variables: $($_.Exception.Message)"
         $artifacts.Artifacts.EnvironmentVariables = "Error: $($_.Exception.Message)"
     }
@@ -576,7 +582,8 @@ function Get-MemoryArtifacts {
         $history | Export-Csv (Join-Path $artifactsDir "command_history.csv") -NoTypeInformation
         $artifacts.Artifacts.CommandHistory = "Collected"
         Write-Host "[OK] Command history collected" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to collect command history: $($_.Exception.Message)"
         $artifacts.Artifacts.CommandHistory = "Error: $($_.Exception.Message)"
     }
@@ -620,8 +627,8 @@ function Invoke-MemoryForensicAnalysis {
 
     $workflow = @{
         Timestamp = Get-Date
-        Steps = @()
-        Results = @{}
+        Steps     = @()
+        Results   = @{}
     }
 
     # Step 1: Memory Dump
@@ -632,11 +639,13 @@ function Invoke-MemoryForensicAnalysis {
             $workflow.Results.MemoryDump = $memoryDump
             $workflow.Steps += "Memory Dump: Success - $memoryDump"
             Write-Host "[OK] Memory dump acquired" -ForegroundColor Green
-        } else {
+        }
+        else {
             $workflow.Steps += "Memory Dump: Failed - No dump tool available"
             Write-Warning "Memory dump failed"
         }
-    } catch {
+    }
+    catch {
         $workflow.Steps += "Memory Dump: Error - $($_.Exception.Message)"
         Write-Warning "Memory dump error: $($_.Exception.Message)"
     }
@@ -649,7 +658,8 @@ function Invoke-MemoryForensicAnalysis {
             $workflow.Results.VolatilityAnalysis = $volResults
             $workflow.Steps += "Volatility Analysis: Success"
             Write-Host "[OK] Volatility analysis completed" -ForegroundColor Green
-        } catch {
+        }
+        catch {
             $workflow.Steps += "Volatility Analysis: Error - $($_.Exception.Message)"
             Write-Warning "Volatility analysis error: $($_.Exception.Message)"
         }
@@ -664,11 +674,13 @@ function Invoke-MemoryForensicAnalysis {
                 $workflow.Results.MemoryTimeline = $timeline
                 $workflow.Steps += "Memory Timeline: Success - $timeline"
                 Write-Host "[OK] Memory timeline created" -ForegroundColor Green
-            } else {
+            }
+            else {
                 $workflow.Steps += "Memory Timeline: Failed"
                 Write-Warning "Memory timeline creation failed"
             }
-        } catch {
+        }
+        catch {
             $workflow.Steps += "Memory Timeline: Error - $($_.Exception.Message)"
             Write-Warning "Memory timeline error: $($_.Exception.Message)"
         }
@@ -681,7 +693,8 @@ function Invoke-MemoryForensicAnalysis {
         $workflow.Results.MemoryArtifacts = $artifacts
         $workflow.Steps += "Memory Artifacts: Success - $artifacts"
         Write-Host "[OK] Memory artifacts collected" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         $workflow.Steps += "Memory Artifacts: Error - $($_.Exception.Message)"
         Write-Warning "Memory artifacts error: $($_.Exception.Message)"
     }
@@ -706,7 +719,8 @@ function Invoke-MemoryForensicAnalysis {
             $workflow.Results.ProcessDumps = $processDumps
             $workflow.Steps += "Process Dumps: Success - $($processDumps.Count) dumps created"
             Write-Host "[OK] Process memory dumps completed" -ForegroundColor Green
-        } catch {
+        }
+        catch {
             $workflow.Steps += "Process Dumps: Error - $($_.Exception.Message)"
             Write-Warning "Process dumps error: $($_.Exception.Message)"
         }

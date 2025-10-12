@@ -32,42 +32,66 @@ if (-not (Test-Path $ModulesDir)) {
 
 # List of modules to load
 $Modules = @(
-    "CoreSystemFunctions.ps1",
-    "NetworkFunctions.ps1",
-    "FileSystemFunctions.ps1",
-    "RegistryFunctions.ps1",
-    "EventLogFunctions.ps1",
-    "MemoryFunctions.ps1",
-    "AdvancedMemoryFunctions.ps1",
-    "AdvancedNetworkFunctions.ps1",
-    "AdvancedFileSystemFunctions.ps1",
-    "AdvancedMalwareAnalysisFunctions.ps1",
-    "CloudForensicsFunctions.ps1",
-    "EvidenceCollectionFunctions.ps1",
-    "AnalysisWrapperFunctions.ps1",
-    "PerformanceFunctions.ps1",
-    "ExternalToolIntegrationsFunctions.ps1",
-    "TestingValidationFrameworkFunctions.ps1",
-    "PlaybookManagementFunctions.ps1",
-    "CaseManagementFunctions.ps1",
-    "ExecutionMonitoringFunctions.ps1",
-    "EvidenceManagementSystemFunctions.ps1",
-    "HTMLReportFunctions.ps1",
-    "TimelineVisualizationFunctions.ps1",
-    "EvidenceCorrelationFunctions.ps1",
-    "ExportReportFunctions.ps1",
-    "BrowserProfilesFunctions.ps1",
-    "BrowserHistoryFunctions.ps1",
-    "BrowserCacheFunctions.ps1",
-    "BrowserCookiesFunctions.ps1",
-    "BrowserBookmarksFunctions.ps1",
-    "BrowserTimelineFunctions.ps1",
-    "BrowserExportFunctions.ps1",
-    "DatabaseForensicsFunctions.ps1",
-    "AndroidDeviceFunctions.ps1",
-    "iOSDeviceFunctions.ps1",
-    "MobileDeviceReportingFunctions.ps1",
-    "AutomatedReportingFunctions.ps1"
+    "AdvancedFileSystemAnalysis.ps1",
+    "AdvancedMalwareAnalysis.ps1",
+    "AdvancedMemory.ps1",
+    "AdvancedNetworkAnalysis.ps1",
+    "AnalysisWrapper.ps1",
+    "AndroidDevice.ps1",
+    "AutomatedReporting.ps1",
+    "AutomationManagement.ps1",
+    "BrowserBookmarks.ps1",
+    "BrowserCache.ps1",
+    "BrowserCookies.ps1",
+    "BrowserExport.ps1",
+    "BrowserHistory.ps1",
+    "BrowserProfiles.ps1",
+    "BrowserTimeline.ps1",
+    "CaseManagement.ps1",
+    "CloudForensics.ps1",
+    "CoreSystem.ps1",
+    "DatabaseDiscovery.ps1",
+    "DatabaseExport.ps1",
+    "DeletedFiles.ps1",
+    "DNSAnalysis.ps1",
+    "EventLog.ps1",
+    "EvidenceAudit.ps1",
+    "EvidenceChainOfCustody.ps1",
+    "EvidenceClasses.ps1",
+    "EvidenceCollection.ps1",
+    "EvidenceCollectionWorkflow.ps1",
+    "EvidenceCorrelation.ps1",
+    "EvidenceItem.ps1",
+    "EvidenceReporting.ps1",
+    "EvidenceRepository.ps1",
+    "EvidenceVerification.ps1",
+    "ExecutionMonitoring.ps1",
+    "ExportReport.ps1",
+    "ExternalToolIntegrations.ps1",
+    "FileAnomaly.ps1",
+    "FileCarving.ps1",
+    "FileSignature.ps1",
+    "FileSystem.ps1",
+    "FileSystemTimeline.ps1",
+    "FirewallAnalysis.ps1",
+    "HTMLReport.ps1",
+    "iOSDevice.ps1",
+    "Memory.ps1",
+    "MobileDeviceReporting.ps1",
+    "Network.ps1",
+    "NetworkAnomaly.ps1",
+    "NetworkCapture.ps1",
+    "NetworkTrafficAnalysis.ps1",
+    "Performance.ps1",
+    "PlaybookManagement.ps1",
+    "Registry.ps1",
+    "ScheduledTask.ps1",
+    "SIEMIntegration.ps1",
+    "SQLiteDatabase.ps1",
+    "SQLServerDatabase.ps1",
+    "TestingValidationFramework.ps1",
+    "TimelineVisualization.ps1",
+    "WorkflowOrchestration.ps1"
 )
 
 $LoadedModules = 0
@@ -92,28 +116,11 @@ foreach ($module in $Modules) {
     }
 }
 
-# Load Automation Functions
-$automationFunctionsPath = Join-Path $PSScriptRoot "Modules\AutomationFunctions.ps1"
-if (Test-Path $automationFunctionsPath) {
-    Write-Host "Loading Automation Functions..." -ForegroundColor Cyan
-    try {
-        . $automationFunctionsPath
-    }
-    catch {
-        Write-Warning "Failed to load forensic toolkit: $($_.Exception.Message)"
-    }
-}
-
 # Load Performance Functions
 $performanceFunctionsPath = Join-Path $PSScriptRoot "Modules\PerformanceFunctions.ps1"
 if (Test-Path $performanceFunctionsPath) {
     Write-Host "Loading Performance Functions..." -ForegroundColor Cyan
-    try {
-        . $performanceFunctionsPath
-    }
-    catch {
-        Write-Warning "Failed to load Performance Functions: $($_.Exception.Message)"
-    }
+    . $performanceFunctionsPath
 }
 
 # Check for Administrator privileges
@@ -122,10 +129,11 @@ $IsAdministrator = (New-Object Security.Principal.WindowsPrincipal([Security.Pri
 if (-not $IsAdministrator) {
     Write-Host ""
     Write-Host "WARNING: ELEVATION REQUIRED" -ForegroundColor Yellow
-    Write-Host "Some functions require Administrator privileges." -ForegroundColor Yellow
+    Write-Host "Some functions require Administrator privileges" -ForegroundColor Yellow
 }
 else {
-    Write-Host "`nRunning with Administrator privileges" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Running with Administrator privileges" -ForegroundColor Green
 }
 
 # Display loading summary
@@ -136,15 +144,35 @@ if ($FailedModules -gt 0) {
 }
 
 # Display available functions
-$ForensicFunctions = Get-Command -CommandType Function | Where-Object {
-    $_.Name -match '^(Get-|Invoke-|Collect-|Search-|Export-)' -and
-    $_.Source -match 'ForensicFunctions|Modules'
-}
+$ForensicFunctions = Get-Command -CommandType Function
 
 Write-Host ""
-Write-Host "Available Forensic Functions:" -ForegroundColor Cyan
-$ForensicFunctions | Sort-Object Name | ForEach-Object {
-    Write-Host "  $($_.Name)" -ForegroundColor White
+Write-Host "Key Forensic Functions:" -ForegroundColor Cyan
+
+$KeyFunctions = @(
+    "Get-SystemInfo",
+    "Get-ProcessDetails", 
+    "Get-NetworkConnections",
+    "Get-FileHashes",
+    "Analyze-File",
+    "Get-EventLogsSummary",
+    "Search-EventLogs",
+    "Get-RegistryKeys",
+    "Get-MemoryDump",
+    "Collect-SystemEvidence"
+)
+
+$AvailableKeyFunctions = $KeyFunctions | Where-Object {
+    Get-Command $_ -CommandType Function -ErrorAction SilentlyContinue
+}
+
+if ($AvailableKeyFunctions) {
+    $AvailableKeyFunctions | Sort-Object | ForEach-Object {
+        Write-Host "  $_" -ForegroundColor White
+    }
+}
+else {
+    Write-Host "No key forensic functions found." -ForegroundColor Yellow
 }
 
 Write-Host ""
