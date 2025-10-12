@@ -331,22 +331,22 @@ function Install-ForensicTools {
     $pythonInstalled = $false
     try {
         $pythonVersion = python --version 2>$null
-        if ($pythonVersion -match "Python 3\.[89]\d*") {
+        if ($pythonVersion -match "Python 3\.\d+") {
             Write-Host "Python found: $pythonVersion" -ForegroundColor Green
             $pythonInstalled = $true
         }
         else {
-            Write-Warning "Python version too old or not found. Installing Python 3.11..."
+            Write-Warning "Python version too old or not found. Installing latest Python..."
         }
     }
     catch {
-        Write-Host "Python not found. Installing Python 3.11..." -ForegroundColor Yellow
+        Write-Host "Python not found. Installing latest Python..." -ForegroundColor Yellow
     }
 
     if (-not $pythonInstalled) {
         try {
             Write-Host "Installing Python via winget..." -ForegroundColor Yellow
-            winget install Python.Python.3.11 --accept-source-agreements --accept-package-agreements
+            winget install Python.Python.3.14 --accept-source-agreements --accept-package-agreements
             Write-Host "Python installed successfully. Please restart PowerShell and run this function again." -ForegroundColor Green
         }
         catch {
