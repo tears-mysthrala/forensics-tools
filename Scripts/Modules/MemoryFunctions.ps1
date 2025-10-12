@@ -192,6 +192,20 @@ function Get-VolatilityAnalysis {
     }
 
     $volCmd = Get-Command vol -ErrorAction SilentlyContinue
+    if (-not $volCmd) {
+        # Check common installation paths
+        $volPaths = @(
+            "$env:USERPROFILE\.local\bin\vol.exe",
+            "$env:APPDATA\Python\Scripts\vol.exe",
+            (Join-Path (Split-Path $pythonCmd.Source -Parent) "Scripts\vol.exe")
+        )
+        foreach ($path in $volPaths) {
+            if (Test-Path $path) {
+                $volCmd = $path
+                break
+            }
+        }
+    }
     $volAvailable = $false
     if ($volCmd) {
         $volAvailable = $true
@@ -212,9 +226,10 @@ function Get-VolatilityAnalysis {
     Write-Host "Running Volatility analysis: $AnalysisType" -ForegroundColor Cyan
 
     try {
-        $output = if ($volCmd) { & vol -f $MemoryDump $AnalysisType 2>&1 } else { & $pythonCmd -m volatility3.cli -f $MemoryDump $AnalysisType 2>&1 }
+        $output = if ($volCmd) { & $volCmd -f $MemoryDump $AnalysisType 2>&1 } else { & $pythonCmd -c "import sys; sys.argv = ['vol', '-f', '$MemoryDump', '$AnalysisType']; from volatility3.cli.vol import main; main()" 2>&1 }
         $output
-    } catch {
+    }
+    catch {
         Write-Error "Volatility analysis failed: $_"
     }
 }
@@ -275,7 +290,8 @@ function Install-ForensicTools {
                     $webClient.DownloadFile($url, $winpmemPath)
                     $downloaded = $true
                     break
-                } catch {
+                }
+                catch {
                     Write-Warning "Failed to download from $url : $($_.Exception.Message)"
                 }
             }
@@ -286,13 +302,16 @@ function Install-ForensicTools {
                 Write-Host "1. Download WinPMEM from: https://github.com/Velocidex/WinPMEM/releases" -ForegroundColor Yellow
                 Write-Host "2. Extract winpmem.exe to: $winpmemDir" -ForegroundColor Yellow
                 Write-Host "3. The profile will detect it automatically on next run" -ForegroundColor Yellow
-            } else {
+            }
+            else {
                 Write-Host "WinPMEM installed successfully: $winpmemPath" -ForegroundColor Green
             }
-        } catch {
+        }
+        catch {
             Write-Error "Failed to install WinPMEM: $($_.Exception.Message)"
         }
-    } else {
+    }
+    else {
         Write-Host "WinPMEM already available: $winpmemPath" -ForegroundColor Green
     }
 
@@ -302,7 +321,8 @@ function Install-ForensicTools {
         Write-Host "DumpIt requires manual installation. Please download from:" -ForegroundColor Yellow
         Write-Host "https://www.moonsols.com/windows-memory-toolkit/" -ForegroundColor Yellow
         Write-Host "Place DumpIt.exe in: $winpmemDir" -ForegroundColor Yellow
-    } else {
+    }
+    else {
         Write-Host "DumpIt already available: $dumpitPath" -ForegroundColor Green
     }
 
@@ -314,10 +334,12 @@ function Install-ForensicTools {
         if ($pythonVersion -match "Python 3\.[89]\d*") {
             Write-Host "Python found: $pythonVersion" -ForegroundColor Green
             $pythonInstalled = $true
-        } else {
+        }
+        else {
             Write-Warning "Python version too old or not found. Installing Python 3.11..."
         }
-    } catch {
+    }
+    catch {
         Write-Host "Python not found. Installing Python 3.11..." -ForegroundColor Yellow
     }
 
@@ -326,7 +348,8 @@ function Install-ForensicTools {
             Write-Host "Installing Python via winget..." -ForegroundColor Yellow
             winget install Python.Python.3.11 --accept-source-agreements --accept-package-agreements
             Write-Host "Python installed successfully. Please restart PowerShell and run this function again." -ForegroundColor Green
-        } catch {
+        }
+        catch {
             Write-Error "Failed to install Python automatically. Please install manually from https://python.org"
         }
     }
@@ -337,15 +360,18 @@ function Install-ForensicTools {
         $azVersion = az --version 2>$null | Select-Object -First 1
         if ($azVersion) {
             Write-Host "Azure CLI found: $azVersion" -ForegroundColor Green
-        } else {
+        }
+        else {
             throw "Not found"
         }
-    } catch {
+    }
+    catch {
         Write-Host "Azure CLI not found. Installing..." -ForegroundColor Yellow
         try {
             winget install Microsoft.AzureCLI --accept-source-agreements --accept-package-agreements
             Write-Host "Azure CLI installed successfully." -ForegroundColor Green
-        } catch {
+        }
+        catch {
             Write-Warning "Failed to install Azure CLI automatically. Please install manually."
         }
     }
@@ -356,15 +382,18 @@ function Install-ForensicTools {
         $wiresharkVersion = & "C:\Program Files\Wireshark\tshark.exe" --version 2>$null | Select-Object -First 1
         if ($wiresharkVersion) {
             Write-Host "Wireshark found: $wiresharkVersion" -ForegroundColor Green
-        } else {
+        }
+        else {
             throw "Not found"
         }
-    } catch {
+    }
+    catch {
         Write-Host "Wireshark not found. Installing..." -ForegroundColor Yellow
         try {
             winget install WiresharkFoundation.Wireshark --accept-source-agreements --accept-package-agreements
             Write-Host "Wireshark installed successfully." -ForegroundColor Green
-        } catch {
+        }
+        catch {
             Write-Warning "Failed to install Wireshark automatically. Please install manually."
         }
     }
@@ -398,21 +427,44 @@ function Install-ForensicTools {
                         Write-Host "YARA installed successfully: $yaraPath" -ForegroundColor Green
                     }
                 }
-            } else {
+            }
+            else {
                 Write-Warning "Could not find YARA download. Please install manually from https://github.com/VirusTotal/yara/releases"
             }
-        } catch {
+        }
+        catch {
             Write-Warning "Failed to install YARA automatically: $($_.Exception.Message)"
         }
-    } else {
+    }
+    else {
         Write-Host "YARA already available: $yaraPath" -ForegroundColor Green
     }
 
     # Install Python packages if Python is available
     if ($pythonInstalled -or (Get-Command python -ErrorAction SilentlyContinue)) {
+        # Install uv for fast package management
+        Write-Host "Checking for uv..." -ForegroundColor Cyan
+        try {
+            $uvVersion = uv --version 2>$null
+            if ($uvVersion) {
+                Write-Host "uv found: $uvVersion" -ForegroundColor Green
+            }
+        }
+        catch {
+            Write-Host "Installing uv for fast Python package management..." -ForegroundColor Yellow
+            try {
+                winget install astral-sh.uv --accept-source-agreements --accept-package-agreements
+                Write-Host "uv installed successfully." -ForegroundColor Green
+            }
+            catch {
+                Write-Warning "Failed to install uv automatically. Will use pip."
+            }
+        }
+
         Write-Host "Installing Python forensics packages..." -ForegroundColor Cyan
         Get-PythonForensicsTools
-    } else {
+    }
+    else {
         Write-Warning "Python not available. Run this function again after installing Python."
     }
 
@@ -444,21 +496,28 @@ function Get-PythonForensicsTools {
 
     Write-Host "Python found: $($pythonCmd.Source)" -ForegroundColor Green
 
-    # Check pip
-    try {
-        $pipVersion = & $pythonCmd -m pip --version 2>$null
-        Write-Host "Pip found: $($pipVersion.Split()[1])" -ForegroundColor Green
-    } catch {
-        Write-Error "Pip not found. Install pip or ensure Python installation includes pip."
-        return $false
+    # Check for package manager (uv preferred)
+    if (Get-Command uv -ErrorAction SilentlyContinue) {
+        Write-Host "uv found for fast package management" -ForegroundColor Green
+    }
+    else {
+        # Check pip
+        try {
+            $pipVersion = & $pythonCmd -m pip --version 2>$null
+            Write-Host "Pip found: $($pipVersion.Split()[1])" -ForegroundColor Green
+        }
+        catch {
+            Write-Error "Pip not found. Install pip or ensure Python installation includes pip."
+            return $false
+        }
     }
 
     # Required packages
     $packages = @(
-        @{Name = "volatility3"; Command = "import volatility3.cli"},
-        @{Name = "pefile"; Command = "import pefile"},
-        @{Name = "yara-python"; Command = "import yara"},
-        @{Name = "construct"; Command = "import construct"}
+        @{Name = "volatility3"; Command = "import volatility3.cli" },
+        @{Name = "pefile"; Command = "import pefile" },
+        @{Name = "yara-python"; Command = "import yara" },
+        @{Name = "construct"; Command = "import construct" }
     )
 
     foreach ($package in $packages) {
@@ -467,16 +526,58 @@ function Get-PythonForensicsTools {
 
         if ($result -eq "OK") {
             Write-Host "$($package.Name) is available" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "Installing $($package.Name)..." -ForegroundColor Yellow
             try {
-                & $pythonCmd -m pip install $package.Name --quiet 2>$null
+                if (Get-Command uv -ErrorAction SilentlyContinue) {
+                    $installArgs = ""
+                    if ($package.InstallArgs) {
+                        $installArgs = $package.InstallArgs
+                    }
+                    & uv pip install $package.Name $installArgs --quiet 2>$null
+                }
+                else {
+                    $installCmd = "pip install $($package.Name)"
+                    if ($package.InstallArgs) {
+                        $installCmd += " $($package.InstallArgs)"
+                    }
+                    & $pythonCmd -m $installCmd --quiet 2>$null
+                }
                 Write-Host "$($package.Name) installed successfully" -ForegroundColor Green
-            } catch {
+            }
+            catch {
                 Write-Error "Failed to install $($package.Name): $($_.Exception.Message)"
                 return $false
             }
         }
+    }
+
+    # Verify vol command is available
+    Write-Host "Verifying vol command..." -ForegroundColor Gray
+    $volCmd = Get-Command vol -ErrorAction SilentlyContinue
+    if (-not $volCmd) {
+        # Check common paths
+        $volPaths = @(
+            "$env:USERPROFILE\.local\bin\vol.exe",
+            "$env:APPDATA\Python\Scripts\vol.exe",
+            (Join-Path (Split-Path $pythonCmd.Source -Parent) "Scripts\vol.exe")
+        )
+        $volFound = $false
+        foreach ($path in $volPaths) {
+            if (Test-Path $path) {
+                Write-Host "vol.exe found at: $path" -ForegroundColor Green
+                Write-Host "Consider adding $(Split-Path $path -Parent) to your PATH for easier access." -ForegroundColor Yellow
+                $volFound = $true
+                break
+            }
+        }
+        if (-not $volFound) {
+            Write-Warning "vol.exe not found in expected locations. You may need to restart PowerShell or add the Python Scripts directory to PATH."
+        }
+    }
+    else {
+        Write-Host "vol command available: $($volCmd.Source)" -ForegroundColor Green
     }
 
     Write-Host "Python forensics tools setup complete!" -ForegroundColor Green

@@ -25,13 +25,27 @@ function Get-VolatilityPlugins {
     try {
         # Check for vol command
         $volCmd = Get-Command vol -ErrorAction SilentlyContinue
+        if (-not $volCmd) {
+            # Check common installation paths
+            $volPaths = @(
+                "$env:USERPROFILE\.local\bin\vol.exe",
+                "$env:APPDATA\Python\Scripts\vol.exe",
+                (Join-Path (Split-Path $pythonCmd.Source -Parent) "Scripts\vol.exe")
+            )
+            foreach ($path in $volPaths) {
+                if (Test-Path $path) {
+                    $volCmd = $path
+                    break
+                }
+            }
+        }
         if ($volCmd) {
             # Get list of plugins using vol command
-            $plugins = & vol --help 2>$null
+            $plugins = & $volCmd --help 2>$null
         }
         else {
-            # Fallback to python module
-            $plugins = & $pythonCmd -m volatility3.framework.plugins --help 2>$null
+            # Fallback to python
+            $plugins = & $pythonCmd -c "import sys; sys.argv = ['vol', '--help']; from volatility3.cli.vol import main; main()" 2>$null
         }
         if ($plugins) {
             Write-Host "Available Volatility 3 plugins:" -ForegroundColor Green
@@ -89,6 +103,20 @@ function Invoke-VolatilityAnalysis {
 
     # Check for Volatility 3
     $volCmd = Get-Command vol -ErrorAction SilentlyContinue
+    if (-not $volCmd) {
+        # Check common installation paths
+        $volPaths = @(
+            "$env:USERPROFILE\.local\bin\vol.exe",
+            "$env:APPDATA\Python\Scripts\vol.exe",
+            (Join-Path (Split-Path $pythonCmd.Source -Parent) "Scripts\vol.exe")
+        )
+        foreach ($path in $volPaths) {
+            if (Test-Path $path) {
+                $volCmd = $path
+                break
+            }
+        }
+    }
     $volAvailable = $false
     if ($volCmd) {
         $volAvailable = $true
@@ -190,25 +218,26 @@ function Invoke-VolatilityAnalysis {
         Write-Host "Running $($plugin.Name) - $($plugin.Description)..." -ForegroundColor Yellow
         try {
             if ($volCmd) {
-                $output = & vol -f $MemoryDump $plugin.Name 2>&1
+                $output = & $volCmd -f $MemoryDump $plugin.Name 2>&1
             }
             else {
-                $output = & $pythonCmd -m volatility3.cli -f $MemoryDump $plugin.Name 2>&1
+                $output = & $pythonCmd -c "import sys; sys.argv = ['vol', '-f', '$MemoryDump', '$plugin.Name']; from volatility3.cli.vol import main; main()" 2>&1
             }
             $outputFile = Join-Path $analysisDir "$($plugin.Name -replace '\.', '_').txt"
             $output | Out-File $outputFile
             $results.Results[$plugin.Name] = @{
                 Description = $plugin.Description
-                OutputFile = $outputFile
-                Success = $true
+                OutputFile  = $outputFile
+                Success     = $true
             }
             Write-Host "[OK] Completed $($plugin.Name)" -ForegroundColor Green
-        } catch {
+        }
+        catch {
             Write-Warning "Failed to run $($plugin.Name): $($_.Exception.Message)"
             $results.Results[$plugin.Name] = @{
                 Description = $plugin.Description
-                Error = $_.Exception.Message
-                Success = $false
+                Error       = $_.Exception.Message
+                Success     = $false
             }
         }
     }
@@ -259,7 +288,8 @@ function Get-ProcessMemoryDump {
             return
         }
         $ProcessId = $process.Id
-    } else {
+    }
+    else {
         $process = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
         if (-not $process) {
             Write-Error "Process with ID $ProcessId not found"
@@ -290,7 +320,8 @@ function Get-ProcessMemoryDump {
         if ($toolUsed) {
             if ($toolUsed -match "winpmem") {
                 & $toolUsed --pid $ProcessId $outputFile 2>&1 | Out-Null
-            } elseif ($toolUsed -match "DumpIt") {
+            }
+            elseif ($toolUsed -match "DumpIt") {
                 # DumpIt doesn't support process-specific dumping
                 Write-Warning "DumpIt doesn't support process-specific memory dumps. Use WinPMEM."
                 return
@@ -299,14 +330,17 @@ function Get-ProcessMemoryDump {
             if (Test-Path $outputFile) {
                 Write-Host "Process memory dump saved: $outputFile" -ForegroundColor Green
                 return $outputFile
-            } else {
+            }
+            else {
                 Write-Error "Failed to create process memory dump"
             }
-        } else {
+        }
+        else {
             Write-Warning "No memory dumping tools found. Install WinPMEM for process memory dumps."
             Write-Host "Download from: https://github.com/Velocidex/WinPMEM/releases" -ForegroundColor Yellow
         }
-    } catch {
+    }
+    catch {
         Write-Error "Failed to dump process memory: $($_.Exception.Message)"
     }
 
@@ -327,7 +361,7 @@ function Get-MemoryTimeline {
         Get-MemoryTimeline -MemoryDump C:\Evidence\memory.dmp
     #>
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$MemoryDump,
         [string]$OutputPath = "."
     )
@@ -353,10 +387,32 @@ function Get-MemoryTimeline {
         return
     }
 
+    # Check for Volatility 3
+    $volCmd = Get-Command vol -ErrorAction SilentlyContinue
+    if (-not $volCmd) {
+        # Check common installation paths
+        $volPaths = @(
+            "$env:USERPROFILE\.local\bin\vol.exe",
+            "$env:APPDATA\Python\Scripts\vol.exe",
+            (Join-Path (Split-Path $pythonCmd.Source -Parent) "Scripts\vol.exe")
+        )
+        foreach ($path in $volPaths) {
+            if (Test-Path $path) {
+                $volCmd = $path
+                break
+            }
+        }
+    }
+
     try {
         # Run timeliner plugin
         Write-Host "Running Volatility timeliner..." -ForegroundColor Yellow
-        $timelineData = & $pythonCmd -m volatility3.cli -f $MemoryDump windows.timeliner 2>&1
+        if ($volCmd) {
+            $timelineData = & $volCmd -f $MemoryDump windows.timeliner 2>&1
+        }
+        else {
+            $timelineData = & $pythonCmd -c "import sys; sys.argv = ['vol', '-f', '$MemoryDump', 'windows.timeliner']; from volatility3.cli.vol import main; main()" 2>&1
+        }
 
         # Parse and format timeline data
         $timeline = @()
