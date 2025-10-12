@@ -171,13 +171,13 @@ function Get-VolatilityAnalysis {
     .PARAMETER AnalysisType
         Type of analysis: 'pslist', 'netscan', 'malfind', 'handles'.
     .EXAMPLE
-        Get-VolatilityAnalysis -MemoryDump C:\Evidence\memory.dmp -AnalysisType pslist
+        Get-VolatilityAnalysis -MemoryDump C:\Evidence\memory.dmp -AnalysisType windows.pslist
     #>
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$MemoryDump,
-        [ValidateSet('pslist', 'netscan', 'malfind', 'handles', 'dlllist')]
-        [string]$AnalysisType = 'pslist'
+        [ValidateSet('windows.pslist', 'windows.netscan', 'windows.malfind', 'windows.handles', 'windows.dlllist')]
+        [string]$AnalysisType = 'windows.pslist'
     )
 
     # Check if Python and volatility are available
@@ -191,8 +191,19 @@ function Get-VolatilityAnalysis {
         return
     }
 
-    $volCmd = & $pythonCmd -c "import volatility3.cli; print('volatility3 available')" 2>$null
-    if (-not $volCmd) {
+    $volCmd = Get-Command vol -ErrorAction SilentlyContinue
+    $volAvailable = $false
+    if ($volCmd) {
+        $volAvailable = $true
+    }
+    else {
+        # Fallback check for python module
+        $testVol = & $pythonCmd -c "import volatility3.cli; print('OK')" 2>$null
+        if ($testVol -eq "OK") {
+            $volAvailable = $true
+        }
+    }
+    if (-not $volAvailable) {
         Write-Error "Volatility 3 not found. Install with: pip install volatility3"
         Write-Host "Alternative: Download from https://github.com/volatilityfoundation/volatility3" -ForegroundColor Yellow
         return
@@ -201,7 +212,7 @@ function Get-VolatilityAnalysis {
     Write-Host "Running Volatility analysis: $AnalysisType" -ForegroundColor Cyan
 
     try {
-        $output = & $pythonCmd -m volatility3.cli -f $MemoryDump $AnalysisType 2>&1
+        $output = if ($volCmd) { & vol -f $MemoryDump $AnalysisType 2>&1 } else { & $pythonCmd -m volatility3.cli -f $MemoryDump $AnalysisType 2>&1 }
         $output
     } catch {
         Write-Error "Volatility analysis failed: $_"

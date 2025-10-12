@@ -23,17 +23,27 @@ function Get-VolatilityPlugins {
     }
 
     try {
-        # Get list of plugins
-        $plugins = & $pythonCmd -m volatility3.framework.plugins --help 2>$null
+        # Check for vol command
+        $volCmd = Get-Command vol -ErrorAction SilentlyContinue
+        if ($volCmd) {
+            # Get list of plugins using vol command
+            $plugins = & vol --help 2>$null
+        }
+        else {
+            # Fallback to python module
+            $plugins = & $pythonCmd -m volatility3.framework.plugins --help 2>$null
+        }
         if ($plugins) {
             Write-Host "Available Volatility 3 plugins:" -ForegroundColor Green
             $plugins | Where-Object { $_ -match "^\s*[a-zA-Z]" } | ForEach-Object {
                 Write-Host "  $_" -ForegroundColor White
             }
-        } else {
+        }
+        else {
             Write-Warning "Could not retrieve plugin list. Volatility may not be properly installed."
         }
-    } catch {
+    }
+    catch {
         Write-Error "Failed to get Volatility plugins: $($_.Exception.Message)"
     }
 }
@@ -54,7 +64,7 @@ function Invoke-VolatilityAnalysis {
         Invoke-VolatilityAnalysis -MemoryDump C:\Evidence\memory.dmp -AnalysisType full
     #>
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$MemoryDump,
         [ValidateSet('full', 'processes', 'network', 'filesystem', 'malware', 'timeline')]
         [string]$AnalysisType = 'processes',
@@ -77,8 +87,20 @@ function Invoke-VolatilityAnalysis {
         return
     }
 
-    $volCmd = & $pythonCmd -c "import volatility3.cli; print('OK')" 2>$null
-    if ($volCmd -ne "OK") {
+    # Check for Volatility 3
+    $volCmd = Get-Command vol -ErrorAction SilentlyContinue
+    $volAvailable = $false
+    if ($volCmd) {
+        $volAvailable = $true
+    }
+    else {
+        # Fallback check for python module
+        $testVol = & $pythonCmd -c "import volatility3.cli; print('OK')" 2>$null
+        if ($testVol -eq "OK") {
+            $volAvailable = $true
+        }
+    }
+    if (-not $volAvailable) {
         Write-Error "Volatility 3 not found. Install with: pip install volatility3"
         return
     }
@@ -93,62 +115,73 @@ function Invoke-VolatilityAnalysis {
     }
 
     $results = @{
-        Timestamp = Get-Date
-        MemoryDump = $MemoryDump
+        Timestamp    = Get-Date
+        MemoryDump   = $MemoryDump
         AnalysisType = $AnalysisType
-        Results = @{}
+        Results      = @{}
     }
 
     switch ($AnalysisType) {
         'full' {
             # Run comprehensive analysis
             $plugins = @(
-                @{Name = "windows.pslist"; Description = "Process list"},
-                @{Name = "windows.pstree"; Description = "Process tree"},
-                @{Name = "windows.netscan"; Description = "Network connections"},
-                @{Name = "windows.filescan"; Description = "File objects"},
-                @{Name = "windows.dlllist"; Description = "DLLs loaded by processes"},
-                @{Name = "windows.handles"; Description = "Handle table"},
-                @{Name = "windows.registry.hivelist"; Description = "Registry hives"},
-                @{Name = "windows.malfind"; Description = "Malware detection"}
+                @{Name = "windows.pslist"; Description = "Process list" },
+                @{Name = "windows.pstree"; Description = "Process tree" },
+                @{Name = "windows.psscan"; Description = "Process scan" },
+                @{Name = "windows.netscan"; Description = "Network connections" },
+                @{Name = "windows.filescan"; Description = "File objects" },
+                @{Name = "windows.dlllist"; Description = "DLLs loaded by processes" },
+                @{Name = "windows.handles"; Description = "Handle table" },
+                @{Name = "windows.registry.hivelist"; Description = "Registry hives" },
+                @{Name = "windows.malfind"; Description = "Malware detection" },
+                @{Name = "windows.modscan"; Description = "Module scan" },
+                @{Name = "windows.cmdline"; Description = "Command line arguments" },
+                @{Name = "windows.envars"; Description = "Environment variables" }
             )
         }
         'processes' {
             $plugins = @(
-                @{Name = "windows.pslist"; Description = "Process list"},
-                @{Name = "windows.pstree"; Description = "Process tree"},
-                @{Name = "windows.psscan"; Description = "Process scan"},
-                @{Name = "windows.thrdscan"; Description = "Thread scan"},
-                @{Name = "windows.cmdline"; Description = "Command line arguments"}
+                @{Name = "windows.pslist"; Description = "Process list" },
+                @{Name = "windows.pstree"; Description = "Process tree" },
+                @{Name = "windows.psscan"; Description = "Process scan" },
+                @{Name = "windows.thrdscan"; Description = "Thread scan" },
+                @{Name = "windows.cmdline"; Description = "Command line arguments" },
+                @{Name = "windows.envars"; Description = "Environment variables" }
             )
         }
         'network' {
             $plugins = @(
-                @{Name = "windows.netscan"; Description = "Network connections"},
-                @{Name = "windows.netstat"; Description = "Network statistics"},
-                @{Name = "windows.sockets"; Description = "Socket information"}
+                @{Name = "windows.netscan"; Description = "Network connections" },
+                @{Name = "windows.netstat"; Description = "Network statistics" },
+                @{Name = "windows.sockets"; Description = "Socket information" },
+                @{Name = "windows.udpnet"; Description = "UDP network connections" }
             )
         }
         'filesystem' {
             $plugins = @(
-                @{Name = "windows.filescan"; Description = "File objects"},
-                @{Name = "windows.dumpfiles"; Description = "Dump file contents"},
-                @{Name = "windows.mftscan"; Description = "MFT entries"}
+                @{Name = "windows.filescan"; Description = "File objects" },
+                @{Name = "windows.dumpfiles"; Description = "Dump file contents" },
+                @{Name = "windows.mftscan"; Description = "MFT entries" },
+                @{Name = "windows.vadwalk"; Description = "VAD walk" }
             )
         }
         'malware' {
             $plugins = @(
-                @{Name = "windows.malfind"; Description = "Malware detection"},
-                @{Name = "windows.modscan"; Description = "Module scan"},
-                @{Name = "windows.ssdt"; Description = "System service descriptor table"},
-                @{Name = "windows.callbacks"; Description = "Callback functions"}
+                @{Name = "windows.malfind"; Description = "Malware detection" },
+                @{Name = "windows.modscan"; Description = "Module scan" },
+                @{Name = "windows.ssdt"; Description = "System service descriptor table" },
+                @{Name = "windows.callbacks"; Description = "Callback functions" },
+                @{Name = "windows.driverscan"; Description = "Driver scan" },
+                @{Name = "windows.devicetree"; Description = "Device tree" }
             )
         }
         'timeline' {
             $plugins = @(
-                @{Name = "windows.timeliner"; Description = "Timeline creation"},
-                @{Name = "windows.shellbags"; Description = "Shell bags"},
-                @{Name = "windows.userassist"; Description = "UserAssist registry"}
+                @{Name = "windows.timeliner"; Description = "Timeline creation" },
+                @{Name = "windows.shellbags"; Description = "Shell bags" },
+                @{Name = "windows.userassist"; Description = "UserAssist registry" },
+                @{Name = "windows.shimcache"; Description = "Shim cache" },
+                @{Name = "windows.amcache"; Description = "Amcache" }
             )
         }
     }
@@ -156,7 +189,12 @@ function Invoke-VolatilityAnalysis {
     foreach ($plugin in $plugins) {
         Write-Host "Running $($plugin.Name) - $($plugin.Description)..." -ForegroundColor Yellow
         try {
-            $output = & $pythonCmd -m volatility3.cli -f $MemoryDump $plugin.Name 2>&1
+            if ($volCmd) {
+                $output = & vol -f $MemoryDump $plugin.Name 2>&1
+            }
+            else {
+                $output = & $pythonCmd -m volatility3.cli -f $MemoryDump $plugin.Name 2>&1
+            }
             $outputFile = Join-Path $analysisDir "$($plugin.Name -replace '\.', '_').txt"
             $output | Out-File $outputFile
             $results.Results[$plugin.Name] = @{
