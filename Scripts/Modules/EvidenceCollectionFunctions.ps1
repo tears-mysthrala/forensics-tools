@@ -246,7 +246,7 @@ function Invoke-LiveForensics {
                 # Try Volatility analysis if available
                 if (Get-PythonForensicsTools) {
                     Write-Host "Running Volatility analysis..." -ForegroundColor Cyan
-                    $volResults = Get-VolatilityAnalysis -MemoryDump $memoryDump -AnalysisType pslist
+                    $volResults = Get-VolatilityAnalysis -MemoryDump $memoryDump -AnalysisType windows.pslist
                     $volResults | Out-File (Join-Path $analysisDir "volatility_pslist.txt")
                 }
             }

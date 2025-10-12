@@ -27,7 +27,7 @@ Get-MemoryDump -OutputPath "C:\Evidence" -Method PowerShell
 Performs Volatility 3 analysis on memory dumps.
 
 ```powershell
-Get-VolatilityAnalysis -MemoryDump "C:\Evidence\memory.dmp" -AnalysisType pslist
+Get-VolatilityAnalysis -MemoryDump "C:\Evidence\memory.dmp" -AnalysisType windows.pslist
 ```
 
 **Parameters:**
