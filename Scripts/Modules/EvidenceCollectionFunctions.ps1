@@ -309,6 +309,116 @@ function Export-ForensicReport {
 
     Write-Host "Generating forensic report..." -ForegroundColor Cyan
 
+    # Helper function to convert data to visual HTML
+    function Convert-DataToVisualHTML {
+        param($data)
+
+        if ($data -is [array]) {
+            if ($data.Count -eq 0) {
+                return "<div class='evidence-item'><em>No data available</em></div>"
+            }
+
+            # Check if array contains objects
+            $firstItem = $data[0]
+            if ($firstItem -is [PSCustomObject]) {
+                # Create table for structured data
+                $html = "<table><thead><tr>"
+                $firstItem.PSObject.Properties.Name | ForEach-Object { $html += "<th>$_</th>" }
+                $html += "</tr></thead><tbody>"
+
+                foreach ($item in $data | Select-Object -First 50) {
+                    # Limit to first 50 items
+                    $html += "<tr>"
+                    foreach ($prop in $firstItem.PSObject.Properties.Name) {
+                        $value = $item.$prop
+                        if ($value -is [DateTime]) {
+                            $value = $value.ToString("yyyy-MM-dd HH:mm:ss")
+                        }
+                        elseif ($value -is [bool]) {
+                            $value = $value ? "<span class='success'>✓</span>" : "<span class='warning'>✗</span>"
+                        }
+                        elseif ($null -eq $value -or $value -eq "") {
+                            $value = "<em>N/A</em>"
+                        }
+                        elseif ($value -is [string] -and $value.Length -gt 50) {
+                            $value = $value.Substring(0, [Math]::Min(47, $value.Length)) + "..."
+                        }
+                        $html += "<td>$value</td>"
+                    }
+                    $html += "</tr>"
+                }
+                $propCount = ($firstItem.PSObject.Properties | Measure-Object).Count
+                if ($data.Count -gt 50) {
+                    $html += "<tr><td colspan='$propCount'><em>... and $($data.Count - 50) more items</em></td></tr>"
+                }
+                $html += "</tbody></table>"
+                return $html
+            }
+            else {
+                # Simple array
+                $html = "<div class='evidence-item'><ul>"
+                foreach ($item in $data | Select-Object -First 20) {
+                    $html += "<li>$item</li>"
+                }
+                if ($data.Count -gt 20) {
+                    $html += "<li><em>... and $($data.Count - 20) more items</em></li>"
+                }
+                $html += "</ul></div>"
+                return $html
+            }
+        }
+        elseif ($data -is [PSCustomObject]) {
+            # For objects, show properties
+            $html = "<div class='evidence-item'>"
+            $properties = $data.PSObject.Properties
+
+            # Separate simple properties from arrays
+            $simpleProps = @()
+            $arrayProps = @()
+
+            foreach ($prop in $properties) {
+                if ($prop.Value -is [array]) {
+                    $arrayProps += $prop
+                }
+                else {
+                    $simpleProps += $prop
+                }
+            }
+
+            # Show simple properties as metrics
+            if ($simpleProps.Count -gt 0) {
+                $html += "<div class='metric-grid'>"
+                foreach ($prop in $simpleProps) {
+                    $value = $prop.Value
+                    if ($value -is [DateTime]) {
+                        $value = $value.ToString("yyyy-MM-dd HH:mm:ss")
+                    }
+                    elseif ($value -is [bool]) {
+                        $value = $value ? "<span class='success'>True</span>" : "<span class='warning'>False</span>"
+                    }
+                    elseif ($null -eq $value -or $value -eq "") {
+                        $value = "<em>N/A</em>"
+                    }
+                    $html += "<div class='metric'><strong>$($prop.Name)</strong><div>$value</div></div>"
+                }
+                $html += "</div>"
+            }
+
+            # Show array properties
+            foreach ($arrayProp in $arrayProps) {
+                $html += "<h3>$($arrayProp.Name) ($($arrayProp.Value.Count) items)</h3>"
+                $html += Convert-DataToVisualHTML -data $arrayProp.Value
+            }
+
+            $html += "</div>"
+            return $html
+        }
+        else {
+            # Simple values
+            return "<div class='evidence-item'><div class='metric'><strong>Value</strong><div>$data</div></div></div>"
+        }
+    }
+
     # Read evidence files
     $evidenceFiles = Get-ChildItem $EvidencePath -Filter "*.json" | Where-Object { $_.Name -ne "evidence_manifest.json" }
 
@@ -318,59 +428,336 @@ function Export-ForensicReport {
 <head>
     <title>Forensic Analysis Report</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #2E86C1; }
-        h2 { color: #5DADE2; border-bottom: 1px solid #BDC3C7; padding-bottom: 5px; }
-        .section { margin-bottom: 30px; }
-        .evidence-item { background-color: #F8F9FA; padding: 10px; margin: 10px 0; border-left: 4px solid #2E86C1; }
-        .warning { color: #E74C3C; }
-        .success { color: #27AE60; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #BDC3C7; padding: 8px; text-align: left; }
-        th { background-color: #F4F6F7; }
-        pre { background-color: #F8F9FA; padding: 10px; overflow-x: auto; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        .header h1 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card strong {
+            display: block;
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .info-card span {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .section h2 {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .evidence-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .evidence-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .warning {
+            color: #e74c3c;
+            font-weight: 600;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .success {
+            color: #27ae60;
+            font-weight: 600;
+            background: rgba(39, 174, 96, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transition: background 0.3s ease;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metric {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .metric:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric div {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .section-content {
+                padding: 20px;
+            }
+
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        }
     </style>
 </head>
 <body>
-    <h1>Forensic Analysis Report</h1>
-    <p><strong>Generated:</strong> $(Get-Date)</p>
-    <p><strong>Hostname:</strong> $env:COMPUTERNAME</p>
-    <p><strong>Analyst:</strong> $env:USERNAME</p>
-    <p><strong>Evidence Path:</strong> $EvidencePath</p>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Forensic Analysis Report</h1>
+            <div class="header-info">
+                <div class="info-card">
+                    <strong>Generated</strong>
+                    <span>$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</span>
+                </div>
+                <div class="info-card">
+                    <strong>Hostname</strong>
+                    <span>$env:COMPUTERNAME</span>
+                </div>
+                <div class="info-card">
+                    <strong>Analyst</strong>
+                    <span>$env:USERNAME</span>
+                </div>
+                <div class="info-card">
+                    <strong>Evidence Path</strong>
+                    <span>$EvidencePath</span>
+                </div>
+            </div>
+        </div>
 "@
+
+    # Icon mapping for sections
+    $sectionIcons = @{
+        "01 system status"       = "🖥️"
+        "02 system analysis"     = "🔧"
+        "03 network analysis"    = "🌐"
+        "04 filesystem analysis" = "📁"
+        "05 security analysis"   = "🔒"
+        "workflow summary"       = "📊"
+    }
 
     foreach ($file in $evidenceFiles) {
         try {
             $data = Get-Content $file.FullName | ConvertFrom-Json
             $sectionName = ($file.Name -replace '_', ' ' -replace '\.json$', '')
+            $icon = $sectionIcons[$sectionName] ? $sectionIcons[$sectionName] : "📋"
 
-            $html += "<div class='section'><h2>$sectionName</h2>"
+            $html += @"
+        <div class='section'>
+            <div class='section-header'>
+                <div class='section-icon'>$icon</div>
+                <h2>$sectionName</h2>
+            </div>
+            <div class='section-content'>
+"@
 
-            if ($data -is [array]) {
-                $html += "<table><thead><tr>"
-                if ($data.Count -gt 0) {
-                    $data[0].PSObject.Properties.Name | ForEach-Object { $html += "<th>$_</th>" }
-                }
-                $html += "</tr></thead><tbody>"
-                foreach ($item in $data) {
-                    $html += "<tr>"
-                    $item.PSObject.Properties.Value | ForEach-Object { $html += "<td>$_</td>" }
-                    $html += "</tr>"
-                }
-                $html += "</tbody></table>"
-            } elseif ($data -is [PSCustomObject]) {
-                $html += "<div class='evidence-item'><pre>" + ($data | ConvertTo-Json -Depth 3) + "</pre></div>"
-            } else {
-                $html += "<div class='evidence-item'><pre>$data</pre></div>"
-            }
+            $html += Convert-DataToVisualHTML -data $data
 
-            $html += "</div>"
-        } catch {
+            $html += @"
+            </div>
+        </div>
+"@
+        }
+        catch {
             Write-Warning "Failed to process $($file.Name): $($_.Exception.Message)"
         }
     }
 
-    $html += "</body></html>"
+    $html += @"
+    </div>
+</body>
+</html>
+"@
 
     try {
         $html | Out-File $OutputFile -Encoding UTF8

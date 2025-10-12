@@ -573,13 +573,27 @@ function Invoke-ForensicWorkflow {
     # Step 7: Generate Report
     Write-Host "`nStep 7: Generating Report" -ForegroundColor Yellow
     try {
-        $reportFile = Export-ForensicReport -EvidencePath $workflowDir -OutputFile (Join-Path $workflowDir "forensic_report.html")
-        $timelineFile = Get-ForensicTimeline -EvidencePath $workflowDir -OutputFile (Join-Path $workflowDir "forensic_timeline.csv")
-        $workflow.Results.Report = "Generated - $reportFile"
-        $workflow.Results.Timeline = "Generated - $timelineFile"
+        # Load all analysis results into a hashtable for the HTML report
+        $analysisData = @{}
+        $jsonFiles = Get-ChildItem -Path $workflowDir -Filter "*.json" | Where-Object { $_.Name -notlike "workflow_*" }
+        foreach ($jsonFile in $jsonFiles) {
+            $key = $jsonFile.BaseName -replace '^\d+_', ''
+            try {
+                $data = Get-Content $jsonFile.FullName | ConvertFrom-Json
+                $analysisData[$key] = $data
+            }
+            catch {
+                Write-Warning "Failed to load $($jsonFile.Name): $($_.Exception.Message)"
+            }
+        }
+
+        # Generate HTML report using the improved function
+        $htmlReport = New-ForensicHTMLReport -AnalysisData $analysisData -OutputPath $workflowDir -Title "Comprehensive Forensic Report"
+        $workflow.Results.Report = "Generated - $htmlReport"
         $workflow.WorkflowSteps += "Report Generation: Completed"
         Write-Host "[OK] Report generation completed" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         $workflow.WorkflowSteps += "Report Generation: Failed - $($_.Exception.Message)"
         Write-Warning "Report generation failed: $($_.Exception.Message)"
     }
@@ -592,4 +606,28 @@ function Invoke-ForensicWorkflow {
     Write-Host "Summary: $(Join-Path $workflowDir "workflow_summary.json")" -ForegroundColor Cyan
 
     return $workflowDir
+}
+
+function Invoke-CompleteForensics {
+    <#
+    .SYNOPSIS
+        Executes a complete forensic investigation workflow.
+    .DESCRIPTION
+        Runs all analysis functions in sequence and generates reports.
+        This is an alias for Invoke-ForensicWorkflow for convenience.
+    .PARAMETER OutputPath
+        Directory where to save results and reports.
+    .PARAMETER IncludeMemory
+        Whether to include memory analysis.
+    .EXAMPLE
+        Invoke-CompleteForensics -OutputPath C:\Forensics
+        Invoke-CompleteForensics -OutputPath "C:\Forensics" -IncludeMemory $true
+    #>
+    param(
+        [string]$OutputPath = ".",
+        [bool]$IncludeMemory = $false
+    )
+
+    # Call the existing Invoke-ForensicWorkflow function
+    Invoke-ForensicWorkflow -OutputPath $OutputPath -IncludeMemory $IncludeMemory
 }
