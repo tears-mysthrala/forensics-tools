@@ -252,9 +252,14 @@ function Install-ForensicTools {
 
     # Default to profile directory for USB compatibility
     if (-not $ToolsPath) {
-        $ToolsPath = Split-Path $PSScriptRoot -Parent
-        if (-not $ToolsPath) {
-            $ToolsPath = $PWD.Path
+        # Try to use the profile directory first
+        if ($ProfileDir -and (Test-Path $ProfileDir)) {
+            $ToolsPath = $ProfileDir
+        } else {
+            $ToolsPath = Split-Path $PSScriptRoot -Parent
+            if (-not $ToolsPath) {
+                $ToolsPath = $PWD.Path
+            }
         }
     }
 
