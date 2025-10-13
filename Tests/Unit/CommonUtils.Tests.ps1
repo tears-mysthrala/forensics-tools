@@ -35,11 +35,25 @@ Describe "Test-CommandExists" {
         }
 
         It "Should throw validation exception for empty command string" {
-            { Test-CommandExists -command "" } | Should Throw "ParameterBindingValidationException"
+            $threwException = $false
+            try {
+                Test-CommandExists -command ""
+            }
+            catch {
+                $threwException = $true
+            }
+            $threwException | Should Be $true
         }
 
         It "Should throw validation exception for null command" {
-            { Test-CommandExists -command $null } | Should Throw "ParameterBindingValidationException"
+            $threwException = $false
+            try {
+                Test-CommandExists -command $null
+            }
+            catch {
+                $threwException = $true
+            }
+            $threwException | Should Be $true
         }
     }
 

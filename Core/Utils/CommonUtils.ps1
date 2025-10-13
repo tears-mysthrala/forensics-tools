@@ -5,7 +5,11 @@ $script:moduleRoot = Split-Path -Parent $PSCommandPath
 
 function Test-CommandExists {
     [CmdletBinding()]
-    param([string]$command)
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$command
+    )
     
     $oldPreference = $ErrorActionPreference
     $ErrorActionPreference = 'SilentlyContinue'
