@@ -15,7 +15,11 @@ function Expand-CustomArchive {
 
     if (-not $Folder) {
         $FileName = [System.IO.Path]::GetFileNameWithoutExtension($File)
-        $Folder = Join-Path -Path (Split-Path -Path $File -Parent) -ChildPath "$FileName"
+        $parentPath = Split-Path -Path $File -Parent
+        if (-not $parentPath) {
+            $parentPath = Get-Location
+        }
+        $Folder = Join-Path -Path $parentPath -ChildPath "$FileName"
     }
 
     if (-not (Test-Path -Path $Folder -PathType Container)) {
@@ -31,13 +35,13 @@ function Expand-CustomArchive {
                 7z x -o"$Folder" -y "$File" | Out-Null
             }
             default {
-                Write-Error "Unsupported archive format for $File"
-                return
+                throw "Unsupported archive format for $File"
             }
         }
         Write-Host "Expanded '$File' to '$Folder'"
-    } else {
-        Write-Error "File not found: $File"
+    }
+    else {
+        throw "File not found: $File"
     }
 }
 

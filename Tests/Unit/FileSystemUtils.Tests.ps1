@@ -31,8 +31,8 @@ Describe "New-DirectoryAndEnter" {
             New-DirectoryAndEnter -dir $testDir
 
             $currentLocation = Get-Location
-            $currentLocation.Path | Should Be $testDir
-            Test-Path $testDir | Should Be $true
+            $currentLocation.Path | Should -Be $testDir
+            Test-Path $testDir | Should -Be $true
         }
 
         It "Should navigate to existing directory" {
@@ -42,7 +42,7 @@ Describe "New-DirectoryAndEnter" {
             New-DirectoryAndEnter -dir $testDir
 
             $currentLocation = Get-Location
-            $currentLocation.Path | Should Be $testDir
+            $currentLocation.Path | Should -Be $testDir
         }
 
         It "Should handle relative paths" {
@@ -52,8 +52,8 @@ Describe "New-DirectoryAndEnter" {
             New-DirectoryAndEnter -dir $relativeDir
 
             $currentLocation = Get-Location
-            $currentLocation.Path | Should Be $expectedPath
-            Test-Path $expectedPath | Should Be $true
+            $currentLocation.Path | Should -Be $expectedPath
+            Test-Path $expectedPath | Should -Be $true
         }
     }
 }
@@ -74,7 +74,7 @@ Describe "Expand-CustomArchive" {
             catch {
                 $threwException = $true
             }
-            $threwException | Should Be $true
+            $threwException | Should -Be $true
         }
 
         It "Should accept valid file path" {
@@ -88,7 +88,7 @@ Describe "Expand-CustomArchive" {
                     $threwException = $true
                 }
             }
-            $threwException | Should Be $false
+            $threwException | Should -Be $false
         }
     }
 
@@ -110,7 +110,7 @@ Describe "Expand-CustomArchive" {
             }
 
             # Should have created the output folder
-            Test-Path $expectedFolder | Should Be $true
+            Test-Path $expectedFolder | Should -Be $true
         }
 
         It "Should use custom output folder when specified" {
@@ -125,7 +125,7 @@ Describe "Expand-CustomArchive" {
                 # Expected to fail since it's not a real archive
             }
 
-            Test-Path $customFolder | Should Be $true
+            Test-Path $customFolder | Should -Be $true
         }
 
         It "Should handle non-existent files" {
@@ -137,7 +137,7 @@ Describe "Expand-CustomArchive" {
             catch {
                 $threwException = $true
             }
-            $threwException | Should Be $true
+            $threwException | Should -Be $true
         }
     }
 }
@@ -177,12 +177,12 @@ Describe "Expand-CustomArchives" {
 
             # Should have created a folder starting with "expanded_" in TestDrive
             $expandedFolders = Get-ChildItem $TestDrive -Directory | Where-Object { $_.Name -like "expanded_*" }
-            $expandedFolders | Should Not BeNullOrEmpty
-            ($expandedFolders | Measure-Object).Count | Should Be 1
+            $expandedFolders | Should -Not -BeNullOrEmpty
+            ($expandedFolders | Measure-Object).Count | Should -Be 1
         }
 
         It "Should handle empty file list" {
-            # This should not throw but also not create anything
+            # This Should -Not -Throw but also not create anything
             $threwException = $false
             try {
                 Expand-CustomArchives -Files @()
@@ -190,7 +190,7 @@ Describe "Expand-CustomArchives" {
             catch {
                 $threwException = $true
             }
-            $threwException | Should Be $false
+            $threwException | Should -Be $false
         }
     }
 }

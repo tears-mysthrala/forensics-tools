@@ -16,21 +16,16 @@ function Find-Files {
 function Search-FileContent {
     param(
         [Parameter(Mandatory=$true)]
-        [string]$pattern,
-        [string]$path = ".",
-        [string]$filter = "*.*",
-        [switch]$caseSensitive
+        [ValidateNotNullOrEmpty()]
+        [string]$searchPattern,
+        [string]$searchPath = ".",
+        [string]$fileFilter = "*.*",
+        [switch]$caseSensitiveSearch
     )
     
-    $params = @{
-        Path = $path
-        Filter = $filter
-        Recurse = $true
-        ErrorAction = "SilentlyContinue"
-    }
-    
-    Get-ChildItem @params | 
-        Select-String -Pattern $pattern -CaseSensitive:$caseSensitive |
+    Get-ChildItem -Path $searchPath -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like $fileFilter } |
+        Select-String -Pattern $searchPattern -CaseSensitive:$caseSensitiveSearch |
         Select-Object Path, Line, LineNumber
 }
 

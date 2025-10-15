@@ -1,72 +1,47 @@
 # Pester Configuration for Forensics Tools Testing Framework
-# This file defines the testing configuration and conventions
+# Updated for Pester 5.x with modern configuration
 
-@{
-    Run          = @{
-        # Test discovery
-        Path        = @(
-            "$PSScriptRoot/Unit"
-            "$PSScriptRoot/Integration"
-            "$PSScriptRoot/Performance"
-        )
+# Create Pester configuration object
+$config = New-PesterConfiguration
 
-        # Exclude patterns
-        ExcludePath = @(
-            "*.Fixtures.*"
-            "*.Utils.*"
-        )
+# Test discovery
+$config.Run.Path = @(
+    "$PSScriptRoot/Unit/*.Tests.ps1"
+    "$PSScriptRoot/Integration/*.Tests.ps1"
+    "$PSScriptRoot/Performance/*.Tests.ps1"
+)
 
-        # Test file patterns
-        ScriptBlock = {
-            Get-ChildItem -Path $PSScriptRoot -Recurse -Include "*.Tests.ps1" -Exclude "*.Fixtures.*"
-        }
-    }
+# Exclude patterns (not needed when using specific file patterns)
+# $config.Run.ExcludePath = @(
+#     "*Fixtures*"
+#     "*Utils*"
+# )
 
-    Filter       = @{
-        # Tag filters for selective test execution
-        Tag        = @()
-        ExcludeTag = @('Slow', 'Integration', 'Performance')
-    }
+# Filter configuration
+$config.Filter.Tag = @()
+$config.Filter.ExcludeTag = @('Slow', 'Integration', 'Performance')
 
-    CodeCoverage = @{
-        # Enable code coverage analysis
-        Enabled               = $true
+# Code coverage configuration
+$config.CodeCoverage.Enabled = $true
+$config.CodeCoverage.Path = @(
+    "$PSScriptRoot/../Scripts/Modules/*.ps1"
+    "$PSScriptRoot/../Core/Utils/*.ps1"
+)
+$config.CodeCoverage.ExcludeTests = $true
+$config.CodeCoverage.CoveragePercentTarget = 80
+$config.CodeCoverage.OutputPath = Join-Path $PSScriptRoot "Coverage.xml"
+$config.CodeCoverage.OutputFormat = 'JaCoCo'
 
-        # Paths to analyze for coverage
-        Path                  = @(
-            "$PSScriptRoot/../../Scripts/Modules/*.ps1"
-            "$PSScriptRoot/../../Core/Utils/*.ps1"
-        )
+# Test result configuration
+$config.TestResult.Enabled = $true
+$config.TestResult.OutputPath = Join-Path $PSScriptRoot "TestResults.xml"
+$config.TestResult.OutputFormat = 'NUnitXml'
 
-        # Exclude patterns from coverage
-        ExcludePath           = @(
-            "*.Tests.ps1"
-            "*Test*.ps1"
-            "*Fixture*.ps1"
-        )
+# Output configuration
+$config.Output.Verbosity = 'Normal'
 
-        # Coverage threshold
-        CoveragePercentTarget = 80
-    }
+# Should configuration
+$config.Should.ErrorAction = 'Continue'
 
-    TestResult   = @{
-        # Output format
-        OutputFormat = 'NUnitXml'
-
-        # Output path
-        OutputPath   = "$PSScriptRoot/TestResults.xml"
-
-        # Enable test result output
-        Enabled      = $true
-    }
-
-    Should       = @{
-        # Error action for failed assertions
-        ErrorAction = 'Continue'
-    }
-
-    Output       = @{
-        # Verbosity level
-        Verbosity = 'Normal'
-    }
-}
+# Return the configuration object
+$config

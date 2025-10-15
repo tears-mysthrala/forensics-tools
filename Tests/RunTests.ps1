@@ -17,7 +17,7 @@ param(
     [switch]$EnableCoverage,
 
     [Parameter(Mandatory = $false)]
-    [string]$OutputPath = "$PSScriptRoot/TestResults",
+    [string]$OutputPath = "TestResults",
 
     [Parameter(Mandatory = $false)]
     [switch]$CI
@@ -34,29 +34,47 @@ $ErrorActionPreference = 'Stop'
 # Import test configuration
 $config = & "$PSScriptRoot/PesterConfiguration.ps1"
 
-# For Pester 3.4.0 compatibility, convert config to parameters
-$pesterParams = @{
-    Path         = $config.Run.Path
-    ExcludeTag   = $config.Filter.ExcludeTag
-    OutputFile   = $config.TestResult.OutputPath
-    OutputFormat = $config.TestResult.OutputFormat
-    PassThru     = $true
+# Apply command-line overrides
+if ($TestType -ne 'All') {
+    # Filter paths based on test type
+    switch ($TestType) {
+        'Unit' {
+            $config.Run.Path = @("$PSScriptRoot/Unit/*.Tests.ps1")
+            $config.Filter.ExcludeTag = @('Slow', 'Integration', 'Performance')
+        }
+        'Integration' {
+            $config.Run.Path = @("$PSScriptRoot/Integration/*.Tests.ps1")
+            $config.Filter.ExcludeTag = @('Slow', 'Performance')
+        }
+        'Performance' {
+            $config.Run.Path = @("$PSScriptRoot/Performance/*.Tests.ps1")
+            $config.Filter.ExcludeTag = @('Integration')
+        }
+    }
 }
 
 if ($Tags) {
-    $pesterParams.Tag = $Tags
+    $config.Filter.Tag = $Tags
 }
 
-# Note: Code coverage not supported in Pester 3.4.0
-if ($EnableCoverage) {
-    Write-Warning "Code coverage is not supported in Pester 3.4.0. Install Pester 4.0+ for code coverage features."
+if ($ExcludeTags) {
+    $config.Filter.ExcludeTag = $ExcludeTags
 }
 
+if (-not $EnableCoverage) {
+    $config.CodeCoverage.Enabled = $false
+}
+
+# Override output path if specified
+if ($OutputPath) {
+    $fullOutputPath = Join-Path $PSScriptRoot $OutputPath
+    $config.TestResult.OutputPath = "$fullOutputPath.xml"
+    if ($config.CodeCoverage.Enabled) {
+        $config.CodeCoverage.OutputPath = "$fullOutputPath.Coverage.xml"
+    }
+}
 # Create output directory if it doesn't exist
-$outputDir = Split-Path $OutputPath -Parent
-if (-not (Test-Path $outputDir)) {
-    New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
-}
+# Note: Output paths are now absolute, so directory creation is handled by Pester
 
 # Display test execution information
 Write-Host "=== Forensics Tools Test Runner ===" -ForegroundColor Cyan
@@ -65,12 +83,15 @@ Write-Host "Test Paths: $($config.Run.Path -join ', ')" -ForegroundColor Yellow
 Write-Host "Tags: $($config.Filter.Tag -join ', ')" -ForegroundColor Yellow
 Write-Host "Exclude Tags: $($config.Filter.ExcludeTag -join ', ')" -ForegroundColor Yellow
 Write-Host "Code Coverage: $($config.CodeCoverage.Enabled)" -ForegroundColor Yellow
-Write-Host "Output: $OutputPath.xml" -ForegroundColor Yellow
+Write-Host "Output: $($config.TestResult.OutputPath)" -ForegroundColor Yellow
+if ($config.CodeCoverage.Enabled) {
+    Write-Host "Coverage Output: $($config.CodeCoverage.OutputPath)" -ForegroundColor Yellow
+}
 Write-Host ""
 
 try {
     # Execute tests
-    $testResults = Invoke-Pester @pesterParams
+    $testResults = Invoke-Pester -Configuration $config
 
     # Display results summary
     Write-Host "=== Test Results Summary ===" -ForegroundColor Green
@@ -83,20 +104,26 @@ try {
     if ($testResults.CodeCoverage) {
         Write-Host ""
         Write-Host "=== Code Coverage Summary ===" -ForegroundColor Green
-        Write-Host "Coverage Report: $($testResults.CodeCoverage)" -ForegroundColor White
-        # Note: Coverage percentage not directly available in Pester 3.4.0 format
+        $coverage = $testResults.CodeCoverage
+        Write-Host "Coverage Report: $($coverage.CoverageReport)" -ForegroundColor White
+        Write-Host "Coverage Percentage: $($coverage.CoveragePercent)%" -ForegroundColor White
+        Write-Host "Commands Analyzed: $($coverage.CommandsAnalyzedCount)" -ForegroundColor White
+        Write-Host "Commands Executed: $($coverage.CommandsExecutedCount)" -ForegroundColor White
+        Write-Host "Commands Missed: $($coverage.CommandsMissedCount)" -ForegroundColor White
+
+        if ($coverage.CoveragePercent -lt $config.CodeCoverage.CoveragePercentTarget) {
+            Write-Warning "Code coverage ($($coverage.CoveragePercent)%) is below target ($($config.CodeCoverage.CoveragePercentTarget)%)"
+        }
     }
 
     # Display failed tests if any
     if ($testResults.FailedCount -gt 0) {
         Write-Host ""
         Write-Host "=== Failed Tests ===" -ForegroundColor Red
-        foreach ($failedTest in $testResults.TestResult) {
-            if ($failedTest.Result -eq 'Failed') {
-                Write-Host "FAILED: $($failedTest.Describe) > $($failedTest.Context) > $($failedTest.Name)" -ForegroundColor Red
-                Write-Host "  Error: $($failedTest.FailureMessage)" -ForegroundColor Red
-                Write-Host ""
-            }
+        foreach ($failedTest in $testResults.Failed) {
+            Write-Host "FAILED: $($failedTest.Block) > $($failedTest.Name)" -ForegroundColor Red
+            Write-Host "  Error: $($failedTest.ErrorRecord.Exception.Message)" -ForegroundColor Red
+            Write-Host ""
         }
     }
 
