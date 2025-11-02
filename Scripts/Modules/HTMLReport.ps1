@@ -43,7 +43,11 @@ function New-ForensicHTMLReport {
                             $value = $value.ToString("yyyy-MM-dd HH:mm:ss")
                         }
                         elseif ($value -is [bool]) {
-                            $value = $value ? "<span class='success'>✓</span>" : "<span class='warning'>✗</span>"
+                            if ($value) {
+                                $value = "<span class='success'>&#10003;</span>"
+                            } else {
+                                $value = "<span class='warning'>&#10007;</span>"
+                            }
                         }
                         elseif ($null -eq $value -or $value -eq "") {
                             $value = "<em>N/A</em>"
@@ -110,7 +114,11 @@ function New-ForensicHTMLReport {
                         $value = $value.ToString("yyyy-MM-dd HH:mm:ss")
                     }
                     elseif ($value -is [bool]) {
-                        $value = $value ? "<span class='success'>True</span>" : "<span class='warning'>False</span>"
+                        if ($value) {
+                            $value = "<span class='success'>True</span>"
+                        } else {
+                            $value = "<span class='warning'>False</span>"
+                        }
                     }
                     elseif ($null -eq $value -or $value -eq "") {
                         $value = "<em>N/A</em>"

@@ -1,5 +1,5 @@
 # Load aliases by default
-$ProfileDir = Split-Path -Parent $PROFILE
+$ProfileDir = $PSScriptRoot
 . "$ProfileDir\Core\Utils\unified_aliases.ps1"
 # Initialize profiling
 $script:profileTiming = @{}
