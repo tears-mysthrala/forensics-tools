@@ -223,5 +223,5 @@ function Get-FileStaticAnalysis {
     Write-Host "Medium risk files: $mediumRisk" -ForegroundColor $(if ($mediumRisk -gt 0) { "Yellow" } else { "Green" })
     Write-Host "Results saved to: $analysisDir" -ForegroundColor Cyan
 
-    return $analysisDir
+    return [PSCustomObject]$analysisResults
 }

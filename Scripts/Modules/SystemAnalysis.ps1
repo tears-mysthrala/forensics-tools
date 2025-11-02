@@ -90,5 +90,5 @@ function Invoke-SystemAnalysis {
     }
 
     Write-Host "System analysis complete!" -ForegroundColor Green
-    return $analysis
+    return [PSCustomObject]$analysis
 }

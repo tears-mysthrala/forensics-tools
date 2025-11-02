@@ -29,6 +29,8 @@ test-results/
 coverage/
 *.test
 *.spec
+StaticAnalysis_*/
+testak/
 
 # OS and Editor files
 .DS_Store
