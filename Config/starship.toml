@@ -1,0 +1,76 @@
+# Starship configuration
+# https://starship.rs/config/
+
+# Disable the blank line at the start of the prompt
+add_newline = false
+
+# Set the format of the prompt
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$cmd_duration\
+$line_break\
+$character"""
+
+# Username
+[username]
+style_user = "bright-white bold"
+style_root = "bright-red bold"
+format = "[$user]($style) "
+disabled = false
+show_always = true
+
+# Hostname
+[hostname]
+ssh_only = false
+format = "on [$hostname](bold red) "
+disabled = false
+
+# Directory
+[directory]
+style = "cyan bold"
+format = "in [$path]($style) "
+truncation_length = 0
+truncate_to_repo = false
+use_logical_path = false
+
+# Git branch
+[git_branch]
+symbol = "🌱 "
+style = "bold green"
+format = "on [$symbol$branch]($style) "
+
+# Git status
+[git_status]
+style = "bold yellow"
+format = "[$all_status$ahead_behind]($style) "
+
+# Command duration
+[cmd_duration]
+min_time = 2000
+format = "took [$duration]($style) "
+
+# Character
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold green)"
+
+# Package version
+[package]
+disabled = true
+
+# Node.js
+[nodejs]
+disabled = true
+
+# Python
+[python]
+disabled = true
+
+# Rust
+[rust]
+disabled = true
