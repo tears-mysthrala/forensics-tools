@@ -87,7 +87,4 @@ treat untested modules as experimental.
 
 ## License
 
-No `LICENSE` file is currently present in this repository. Earlier versions of this
-README referenced the MIT License, but the license text was never committed. The
-final license choice is a pending decision by the repository owner; until then, no
-license is granted.
+Released under the [MIT License](LICENSE).
