@@ -2,6 +2,25 @@
 
 A specialized PowerShell profile designed for digital forensics and incident response investigations.
 
+> **Status: laboratory / learning toolkit — no guarantees.**
+> These scripts were built for experimentation and practice in lab environments.
+> They are **not** a production DFIR platform, have **no** chain-of-custody,
+> evidentiary-integrity, or support guarantees, and must not be relied upon as the
+> sole basis for real incident-response or legal proceedings. Validate every output
+> with established forensic tooling and methodology.
+
+## Relationship with Oroitz
+
+[Oroitz](https://github.com/tears-mysthrala/Oroitz) is a separate, educational
+Python wrapper around Volatility 3 focused exclusively on memory forensics. This
+repository is a much broader Windows-oriented PowerShell DFIR profile (registry,
+event logs, browser artifacts, mobile, cloud, reporting, automation). The only
+overlap is a thin set of PowerShell helpers that shell out to the Volatility 3 CLI
+(`Scripts/Modules/SystemVolatilityAnalysis.ps1`, `VolatilityPlugins.ps1`, and the
+`Memory*.ps1` modules); Oroitz already covers that use case in more depth
+(sessions, caching, normalized output). The two projects are intentionally kept
+separate: different language, scope, and audience.
+
 ## Quick Start
 
 ```powershell
@@ -60,6 +79,15 @@ See [Usage Examples](docs/UsageExamples.md) for comprehensive command examples.
 4. Test functions thoroughly
 5. Update relevant documentation files
 
+## Testing
+
+Pester 5 tests live in [`Tests/`](Tests/) and can be run with [`RunTests.ps1`](RunTests.ps1).
+Coverage is partial (core modules only) and several modules have no tests at all —
+treat untested modules as experimental.
+
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+No `LICENSE` file is currently present in this repository. Earlier versions of this
+README referenced the MIT License, but the license text was never committed. The
+final license choice is a pending decision by the repository owner; until then, no
+license is granted.
